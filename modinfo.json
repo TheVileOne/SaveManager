@@ -1,6 +1,6 @@
 {
-  "id": "fluffball.multiversionsupport",
-  "name": "Multiversion Support",
+  "id": "fluffball.savemanager",
+  "name": "Save Manager",
   "version": "1.0.0",
   "target_game_version": "1.9",
   "authors": "Fluffball",
