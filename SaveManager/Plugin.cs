@@ -45,7 +45,7 @@ namespace SaveManager
 
             //Make sure that the version .txt file is matches the current version
             Logger.LogInfo("Creating version file");
-            File.AppendAllText(Path.Combine(Application.persistentDataPath, "LastGameVersion.txt"), result.CurrentVersion);
+            File.WriteAllText(Path.Combine(Application.persistentDataPath, "LastGameVersion.txt"), result.CurrentVersion);
         }
 
         /// <summary>
