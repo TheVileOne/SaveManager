@@ -18,10 +18,9 @@ namespace MultiversionSupport
 
         public static string BackupPath;
 
-        private bool isInitialized;
-
         public void Awake()
         {
+            Logger = base.Logger;
             BackupPath = Path.Combine(Application.persistentDataPath, "backup");
 
             if (!File.Exists(Application.persistentDataPath))
