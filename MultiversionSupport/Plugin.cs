@@ -81,6 +81,8 @@ namespace MultiversionSupport
         /// </summary>
         public bool BackupSaves(string backupPath)
         {
+            Logger.LogInfo("Backing up save files");
+
             if (FileSystemUtils.HasFiles(backupPath))
                 MoveDirectoryToAltPath(backupPath);
 
@@ -92,6 +94,8 @@ namespace MultiversionSupport
         /// </summary>
         public bool RestoreFromBackup(string backupPath)
         {
+            Logger.LogInfo("Restoring save files");
+
             //Check that there are version specific backup files for the current version of the game
             if (FileSystemUtils.HasFiles(backupPath))
                 return SaveUtils.RestoreFromBackup(backupPath);

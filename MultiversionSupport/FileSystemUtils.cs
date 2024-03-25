@@ -25,8 +25,8 @@ namespace MulitversionSupport
             }
             catch (Exception ex)
             {
-                Debug.LogError(customErrorMsg ?? "Unable to delete file");
-                Debug.LogError(ex);
+                Plugin.Logger.LogError(customErrorMsg ?? "Unable to delete file");
+                Plugin.Logger.LogError(ex);
             }
         }
 
@@ -41,8 +41,8 @@ namespace MulitversionSupport
             }
             catch (Exception ex)
             {
-                Debug.LogError(customErrorMsg ?? "Unable to delete directory");
-                Debug.LogError(ex);
+                Plugin.Logger.LogError(customErrorMsg ?? "Unable to delete directory");
+                Plugin.Logger.LogError(ex);
             }
         }
 
@@ -56,7 +56,7 @@ namespace MulitversionSupport
             string sourceFilename = Path.GetFileName(sourcePath);
             string destFilename = Path.GetFileName(destPath);
 
-            Plugin.Logger.LogInfo($"Copying {sourceFilename} to {destFilename}");
+            //Plugin.Logger.LogInfo($"Copying {sourceFilename} to {destFilename}");
 
             bool destEmpty = !File.Exists(destPath);
             bool exceptionLogged = false;
@@ -251,47 +251,12 @@ namespace MulitversionSupport
                 }
             }
 
-            Plugin.Logger.LogInfo(failedToCopy + " failed to copy");
-
-            foreach (string file in failedToCopy)
-                Plugin.Logger.LogInfo(file);
-        }
-
-        public static bool BackupFile(string path)
-        {
-            //Find our backup path
-            string backupPath = Path.ChangeExtension(path, ".bkp");
-
-            try
+            if (failedToCopy.Count > 0)
             {
-                File.Copy(path, backupPath, true);
-                Debug.Log("Log Backup successful");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError("Log Backup failed");
-                Debug.LogError(ex);
-                return false;
-            }
-        }
+                Plugin.Logger.LogInfo(failedToCopy.Count + "files failed to copy");
 
-        public static bool RestoreBackup(string path)
-        {
-            //Find our backup path
-            string backupPath = Path.ChangeExtension(path, ".bkp");
-
-            try
-            {
-                File.Copy(backupPath, path, true);
-                Plugin.Logger.LogInfo("Log Backup restored");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Plugin.Logger.LogError("Log Backup restore failed");
-                Plugin.Logger.LogError(ex);
-                return false;
+                foreach (string file in failedToCopy)
+                    Plugin.Logger.LogInfo(file);
             }
         }
     }
