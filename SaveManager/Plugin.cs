@@ -106,7 +106,7 @@ namespace SaveManager
         /// </summary>
         public void MoveDirectoryToAltPath(string sourcePath)
         {
-            string altPath = Path.Combine(sourcePath, "Old");
+            string altPath = Path.Combine(sourcePath, "old");
 
             //Delete any preexisting folders in the reserve path to make room for new backup storage 
             if (Directory.Exists(altPath))
