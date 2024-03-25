@@ -15,3 +15,7 @@ C:\Users\Michael\source\repos\MultiversionSupport\MultiversionSupport\obj\Releas
 C:\Users\Michael\source\repos\MultiversionSupport\MultiversionSupport\obj\Release\net48\MultiversionSupport.csproj.CopyComplete
 C:\Users\Michael\source\repos\MultiversionSupport\MultiversionSupport\obj\Release\net48\MultiversionSupport.dll
 C:\Users\Michael\source\repos\MultiversionSupport\MultiversionSupport\obj\Release\net48\MultiversionSupport.pdb
+C:\Users\Michael\source\repos\MultiversionSupport\MultiversionSupport\bin\Release\net48\Mono.Cecil.dll
+C:\Users\Michael\source\repos\MultiversionSupport\MultiversionSupport\bin\Release\net48\MonoMod.Common.dll
+C:\Users\Michael\source\repos\MultiversionSupport\MultiversionSupport\bin\Release\net48\MonoMod.dll
+C:\Users\Michael\source\repos\MultiversionSupport\MultiversionSupport\bin\Release\net48\MonoMod.Utils.dll
