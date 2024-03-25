@@ -23,7 +23,7 @@ namespace MultiversionSupport
             Logger = base.Logger;
             BackupPath = Path.Combine(Application.persistentDataPath, "backup");
 
-            if (!File.Exists(Application.persistentDataPath))
+            if (!Directory.Exists(Application.persistentDataPath))
             {
                 Logger.LogWarning("Could not locate persistent data path");
                 return;
@@ -66,6 +66,8 @@ namespace MultiversionSupport
             if (File.Exists(versionCheckPath))
             {
                 var fileData = File.ReadLines(versionCheckPath).GetEnumerator();
+
+                fileData.MoveNext();
 
                 result.LastVersion = fileData.Current;
                 result.LastVersionPath = Path.Combine(BackupPath, result.LastVersion);
