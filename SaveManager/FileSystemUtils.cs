@@ -205,12 +205,12 @@ namespace SaveManager
             return Directory.Exists(path) ? Directory.GetFiles(path).Length : 0;
         }
 
-        public static void CopyDirectory(string sourceDir, string destinationDir, bool recursive)
+        public static void CopyDirectory(string sourcePath, string destPath, SearchOption searchOption, bool throwOnFail = false)
         {
             List<string> failedToCopy = new List<string>();
 
             // Get information about the source directory
-            DirectoryInfo dir = new DirectoryInfo(sourceDir);
+            DirectoryInfo dir = new DirectoryInfo(sourcePath);
 
             //Check if the source directory exists
             if (!dir.Exists)
@@ -220,38 +220,63 @@ namespace SaveManager
             DirectoryInfo[] dirs = dir.GetDirectories();
 
             //Create the destination directory
-            Directory.CreateDirectory(destinationDir);
+            Directory.CreateDirectory(destPath);
 
             //Get the files in the source directory and copy to the destination directory
             foreach (FileInfo file in dir.GetFiles())
             {
                 try
                 {
-                    string targetFilePath = Path.Combine(destinationDir, file.Name);
+                    string targetFilePath = Path.Combine(destPath, file.Name);
                     file.CopyTo(targetFilePath);
                 }
-                catch
+                catch (Exception ex)
                 {
                     failedToCopy.Add(file.Name);
+                    Plugin.Logger.LogError(ex);
+
+                    if (throwOnFail)
+                        throw ex;
                 }
             }
 
             //If recursive and copying subdirectories, recursively call this method
-            if (recursive)
+            if (searchOption == SearchOption.AllDirectories)
             {
                 foreach (DirectoryInfo subDir in dirs)
                 {
-                    string newDestinationDir = Path.Combine(destinationDir, subDir.Name);
-                    CopyDirectory(subDir.FullName, newDestinationDir, true);
+                    string newDestinationDir = Path.Combine(destPath, subDir.Name);
+                    CopyDirectory(subDir.FullName, newDestinationDir, searchOption);
                 }
             }
 
             if (failedToCopy.Count > 0)
             {
-                Plugin.Logger.LogInfo(failedToCopy.Count + "files failed to copy");
+                Plugin.Logger.LogInfo(failedToCopy.Count + " files failed to copy");
 
                 foreach (string file in failedToCopy)
                     Plugin.Logger.LogInfo(file);
+            }
+        }
+
+        public static void SafeMoveDirectory(string sourcePath, string destPath, SearchOption searchOption)
+        {
+            try
+            {
+                if (sourcePath != destPath)
+                {
+                    CopyDirectory(sourcePath, destPath, searchOption, true);
+                    SafeDeleteDirectory(sourcePath);
+                }
+                else
+                {
+                    Plugin.Logger.LogInfo("No move necessary");
+                }
+            }
+            catch (Exception ex)
+            {
+                Plugin.Logger.LogError("Unable to move directory " + sourcePath);
+                Plugin.Logger.LogError(ex);
             }
         }
     }

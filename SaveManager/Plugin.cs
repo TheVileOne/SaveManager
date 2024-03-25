@@ -113,7 +113,7 @@ namespace SaveManager
                 FileSystemUtils.SafeDeleteDirectory(altPath);
 
             //Copy any existing files to a reserve directory
-            FileSystemUtils.CopyDirectory(sourcePath, altPath, false);
+            FileSystemUtils.CopyDirectory(sourcePath, altPath, SearchOption.AllDirectories);
         }
     }
 }
