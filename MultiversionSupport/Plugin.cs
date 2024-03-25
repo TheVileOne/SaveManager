@@ -108,7 +108,7 @@ namespace MultiversionSupport
         /// </summary>
         public void MoveDirectoryToAltPath(string sourcePath)
         {
-            string altPath = sourcePath + " Old";
+            string altPath = Path.Combine(sourcePath, "Old");
 
             //Delete any preexisting folders in the reserve path to make room for new backup storage 
             if (Directory.Exists(altPath))
