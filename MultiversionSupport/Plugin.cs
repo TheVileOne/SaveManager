@@ -26,14 +26,34 @@ namespace MultiversionSupport
 
             if (!File.Exists(Application.persistentDataPath))
             {
-                Logger.LogWarning("Could not locate permanent data path");
+                Logger.LogWarning("Could not locate persistent data path");
                 return;
             }
 
             Directory.CreateDirectory(BackupPath); //Create in case it doesn't exist
+
             FileInfoResult result = CollectFileInfo();
+
+            if (result.CurrentVersion == result.LastVersion || string.IsNullOrEmpty(result.LastVersion))
+            {
+                //Handle situation where the version hasn't changed since the last time the mod was enabled
+                BackupSaves(result.CurrentVersionPath);
+            }
+            else
+            {
+                //Handle situations where the version has changed since the last time the mod was enabled
+                BackupSaves(result.LastVersionPath); //Current save files should be stored in the last detected version backup folder
+                RestoreFromBackup(result.CurrentVersionPath);
+            }
+
+            //Make sure that the version .txt file is matches the current version
+            Logger.LogInfo("Creating version file");
+            File.AppendAllText(Path.Combine(Application.persistentDataPath, "LastGameVersion.txt"), result.CurrentVersion);
         }
 
+        /// <summary>
+        /// Retrieves information pertaining to the active, and last active game version
+        /// </summary>
         public FileInfoResult CollectFileInfo()
         {
             FileInfoResult result = new FileInfoResult();
@@ -55,12 +75,44 @@ namespace MultiversionSupport
             return result;
         }
 
-        public void OnEnable()
+        /// <summary>
+        /// Takes files from the persistent data directory and moves them to a backup directory
+        /// </summary>
+        public bool BackupSaves(string backupPath)
         {
-            if (isInitialized) return;
+            if (FileSystemUtils.HasFiles(backupPath))
+                MoveDirectoryToAltPath(backupPath);
 
-            Logger = base.Logger;
-            isInitialized = true;
+            return SaveUtils.BackupSaves(backupPath);
+        }
+
+        /// <summary>
+        /// Takes files from a backup directory and moves them into the persistent data directory
+        /// </summary>
+        public bool RestoreFromBackup(string backupPath)
+        {
+            //Check that there are version specific backup files for the current version of the game
+            if (FileSystemUtils.HasFiles(backupPath))
+                return SaveUtils.RestoreFromBackup(backupPath);
+
+            return false;
+        }
+
+        /// <summary>
+        /// Copies a directory and its contents to a secondary folder
+        /// </summary>
+        public void MoveDirectoryToAltPath(string sourcePath)
+        {
+            string altPath = sourcePath + " Old";
+
+            //Delete any preexisting folders in the reserve path to make room for new backup storage 
+            if (Directory.Exists(altPath))
+                FileSystemUtils.SafeDeleteDirectory(altPath);
+
+            //Copy any existing files to a reserve directory
+            FileSystemUtils.CopyDirectory(sourcePath, altPath, false);
+        }
+
         }
     }
 }
