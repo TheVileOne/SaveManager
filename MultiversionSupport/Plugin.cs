@@ -111,7 +111,5 @@ namespace MultiversionSupport
             //Copy any existing files to a reserve directory
             FileSystemUtils.CopyDirectory(sourcePath, altPath, false);
         }
-
-        }
     }
 }
