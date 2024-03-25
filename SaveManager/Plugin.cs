@@ -31,7 +31,7 @@ namespace SaveManager
 
             FileInfoResult result = CollectFileInfo();
 
-            if (result.CurrentVersion == result.LastVersion || string.IsNullOrEmpty(result.LastVersion))
+            if (result.CurrentVersion == result.LastVersion)
             {
                 //Handle situation where the version hasn't changed since the last time the mod was enabled
                 BackupSaves(result.CurrentVersionPath);
@@ -66,9 +66,15 @@ namespace SaveManager
                 var fileData = File.ReadLines(versionCheckPath).GetEnumerator();
 
                 fileData.MoveNext();
-
                 result.LastVersion = fileData.Current;
+            }
+
+            if (!string.IsNullOrEmpty(result.LastVersion))
                 result.LastVersionPath = Path.Combine(BackupPath, result.LastVersion);
+            else
+            {
+                result.LastVersion = result.CurrentVersion;
+                result.LastVersionPath = result.CurrentVersionPath;
             }
 
             return result;
