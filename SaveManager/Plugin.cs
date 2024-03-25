@@ -1,5 +1,7 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -35,12 +37,14 @@ namespace SaveManager
             {
                 //Handle situation where the version hasn't changed since the last time the mod was enabled
                 BackupSaves(result.CurrentVersionPath);
+                ManageStrayBackups(result.CurrentVersionPath);
             }
             else
             {
                 //Handle situations where the version has changed since the last time the mod was enabled
                 BackupSaves(result.LastVersionPath); //Current save files should be stored in the last detected version backup folder
                 RestoreFromBackup(result.CurrentVersionPath);
+                ManageStrayBackups(result.LastVersionPath);
             }
 
             //Make sure that the version .txt file is matches the current version
@@ -78,6 +82,38 @@ namespace SaveManager
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Move all backup directories to a given directory path
+        /// </summary>
+        public void ManageStrayBackups(string backupPath)
+        {
+            try
+            {
+                string backupsDir = Path.GetFileName(BackupPath);
+
+                Logger.LogInfo("Looking for stray backup directories");
+                List<string> strayBackupDirs = new List<string>();
+                foreach (string dir in Directory.GetDirectories(BackupPath, "*", SearchOption.TopDirectoryOnly))
+                {
+                    string dirName = Path.GetFileName(dir);
+
+                    if (dirName.Length > 25) //No versioning format should contain this many characters
+                    {
+                        Logger.LogInfo("Found " + dirName);
+                        strayBackupDirs.Add(dirName);
+                    }
+                }
+
+                foreach (string dir in strayBackupDirs)
+                    FileSystemUtils.SafeMoveDirectory(BackupPath, Path.Combine(backupPath, dir), SearchOption.AllDirectories);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Unable to move backup directories");
+                Logger.LogError(ex);
+            }
         }
 
         /// <summary>
