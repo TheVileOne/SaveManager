@@ -12,7 +12,7 @@ namespace MultiversionSupport
     {
         public const string PLUGIN_GUID = "fluffball.multiversionsupport"; // This should be the same as the id in modinfo.json!
         public const string PLUGIN_NAME = "Multiversion Support"; // This should be a human-readable version of your mod's name. This is used for log files and also displaying which mods get loaded. In general, it's a good idea to match this with your modinfo.json as well.
-        public const string PLUGIN_VERSION = "0.5.0";
+        public const string PLUGIN_VERSION = "1.0.0";
 
         public static new ManualLogSource Logger { get; private set; }
 

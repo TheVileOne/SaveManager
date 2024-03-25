@@ -1,0 +1,11 @@
+{
+  "id": "fluffball.multiversionsupport",
+  "name": "Multiversion Support",
+  "version": "1.0.0",
+  "target_game_version": "1.9",
+  "authors": "Fluffball",
+  "description": "Saves a copy of save files on startup in game version specific directories, and restores them when the game version changes.",
+  "youtube_trailer_id": "",
+  "tags": [ "Saving", "Backups", "Utility", "Backwards Compatibility" ],
+  "checksum_override_version": true
+}
