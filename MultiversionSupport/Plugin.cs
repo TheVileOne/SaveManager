@@ -16,7 +16,44 @@ namespace MultiversionSupport
 
         public static new ManualLogSource Logger { get; private set; }
 
+        public static string BackupPath;
+
         private bool isInitialized;
+
+        public void Awake()
+        {
+            BackupPath = Path.Combine(Application.persistentDataPath, "backup");
+
+            if (!File.Exists(Application.persistentDataPath))
+            {
+                Logger.LogWarning("Could not locate permanent data path");
+                return;
+            }
+
+            Directory.CreateDirectory(BackupPath); //Create in case it doesn't exist
+            FileInfoResult result = CollectFileInfo();
+        }
+
+        public FileInfoResult CollectFileInfo()
+        {
+            FileInfoResult result = new FileInfoResult();
+
+            result.CurrentVersion = Application.version;
+            result.CurrentVersionPath = Path.Combine(BackupPath, result.CurrentVersion);
+
+            string versionCheckPath = Path.Combine(Application.persistentDataPath, "LastGameVersion.txt");
+
+            //Retrieve the last mod recorded game version from Rain World's persistent data path
+            if (File.Exists(versionCheckPath))
+            {
+                var fileData = File.ReadLines(versionCheckPath).GetEnumerator();
+
+                result.LastVersion = fileData.Current;
+                result.LastVersionPath = Path.Combine(BackupPath, result.LastVersion);
+            }
+
+            return result;
+        }
 
         public void OnEnable()
         {
