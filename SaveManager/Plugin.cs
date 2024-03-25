@@ -81,6 +81,9 @@ namespace SaveManager
                 result.LastVersionPath = result.CurrentVersionPath;
             }
 
+            Logger.LogInfo("Current Version" + result.CurrentVersion);
+            Logger.LogInfo("Last Version" + result.LastVersion);
+
             return result;
         }
 
