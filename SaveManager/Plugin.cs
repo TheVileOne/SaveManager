@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
+using MonoMod.Cil;
 using SaveManager.Helpers;
 using SaveManager.Interface;
 using System;
@@ -66,6 +67,9 @@ namespace SaveManager
 
             try
             {
+                IL.PlayerProgression.CreateCopyOfSaves_bool += PlayerProgression_CreateCopyOfSaves_bool;
+                On.PlayerProgression.CopySaveFile += PlayerProgression_CopySaveFile;
+
                 if (OptionInterface == null)
                 {
                     OptionInterface = new CustomOptionInterface();
@@ -80,6 +84,37 @@ namespace SaveManager
                 Logger.LogError("Config did not initialize properly");
                 Logger.LogError(ex);
             }
+        }
+
+        private void PlayerProgression_CreateCopyOfSaves_bool(ILContext il)
+        {
+            ILCursor cursor = new ILCursor(il);
+
+            if (cursor.TryGotoNext(MoveType.After, x => x.MatchLdstr("backup")))
+                cursor.EmitDelegate(getRelativeBackupPath); //Change path to version-specific directory
+            else
+                Logger.LogError("Unable to apply Save Manager IL hook");
+        }
+
+        private string getRelativeBackupPath(string backupDir)
+        {
+            return Path.Combine(backupDir, Application.version);
+        }
+
+        /// <summary>
+        /// Hook avoids a exception when the save content already exists
+        /// </summary>
+        private void PlayerProgression_CopySaveFile(On.PlayerProgression.orig_CopySaveFile orig, PlayerProgression self, string sourceName, string destinationDirectory)
+        {
+            string currentPath = Path.Combine(Application.persistentDataPath, sourceName);
+            string destPath = Path.Combine(destinationDirectory, sourceName);
+            if (File.Exists(destPath) && File.Exists(currentPath)) //Original code doesn't allow file overwrites and breaks
+            {
+                FileSystemUtils.SafeCopyFile(destPath, currentPath);
+                return;
+            }
+
+            orig(self, sourceName, destinationDirectory);
         }
 
         /// <summary>
