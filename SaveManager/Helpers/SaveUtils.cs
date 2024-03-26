@@ -2,7 +2,7 @@
 using System.IO;
 using UnityEngine;
 
-namespace SaveManager
+namespace SaveManager.Helpers
 {
     public static class SaveUtils
     {

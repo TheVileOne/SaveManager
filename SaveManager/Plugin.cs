@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
+using SaveManager.Helpers;
 using SaveManager.Interface;
 using System;
 using System.Collections.Generic;
@@ -159,7 +160,7 @@ namespace SaveManager
             if (FileSystemUtils.HasFiles(backupPath))
                 MoveDirectoryToAltPath(backupPath);
 
-            return SaveUtils.BackupSaves(backupPath);
+            return Helpers.SaveUtils.BackupSaves(backupPath);
         }
 
         /// <summary>
@@ -171,7 +172,7 @@ namespace SaveManager
 
             //Check that there are version specific backup files for the current version of the game
             if (FileSystemUtils.HasFiles(backupPath))
-                return SaveUtils.RestoreFromBackup(backupPath);
+                return Helpers.SaveUtils.RestoreFromBackup(backupPath);
 
             return false;
         }

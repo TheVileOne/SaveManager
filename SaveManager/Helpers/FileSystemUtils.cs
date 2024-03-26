@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace SaveManager
+namespace SaveManager.Helpers
 {
     public static class FileSystemUtils
     {

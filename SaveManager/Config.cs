@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
+using SaveManager.Helpers;
 
 namespace SaveManager
 {
