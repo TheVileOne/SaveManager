@@ -71,7 +71,6 @@ namespace SaveManager
                     OptionInterface = new CustomOptionInterface();
 
                     SaveManager.Config.Initialize();
-                    OptionInterface.Initialize();
                 }
 
                 MachineConnector.SetRegisteredOI(PLUGIN_GUID, OptionInterface);
