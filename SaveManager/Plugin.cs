@@ -140,7 +140,13 @@ namespace SaveManager
                 }
 
                 foreach (string dir in strayBackupDirs)
-                    FileSystemUtils.SafeMoveDirectory(BackupPath, Path.Combine(backupPath, dir), SearchOption.AllDirectories);
+                {
+                    //Move the current backup directory within a version-specific backup directory
+                    string currentPath = Path.Combine(BackupPath, dir);
+                    string destPath = Path.Combine(backupPath, dir);
+
+                    FileSystemUtils.SafeMoveDirectory(currentPath, destPath, SearchOption.AllDirectories);
+                }
             }
             catch (Exception ex)
             {

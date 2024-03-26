@@ -228,7 +228,7 @@ namespace SaveManager.Helpers
                 try
                 {
                     string targetFilePath = Path.Combine(destPath, file.Name);
-                    file.CopyTo(targetFilePath);
+                    file.CopyTo(targetFilePath, true);
                 }
                 catch (Exception ex)
                 {
