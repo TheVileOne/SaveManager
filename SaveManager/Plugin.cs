@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
+using SaveManager.Interface;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,11 +18,15 @@ namespace SaveManager
         public static new ManualLogSource Logger { get; private set; }
 
         public static string BackupPath;
+        public static string ConfigFilePath;
+
+        public static CustomOptionInterface OptionInterface;
 
         public void Awake()
         {
             Logger = base.Logger;
             BackupPath = Path.Combine(Application.persistentDataPath, "backup");
+            ConfigFilePath = Path.Combine(Application.persistentDataPath, "ModConfigs", PLUGIN_GUID + ".txt");
 
             if (!Directory.Exists(Application.persistentDataPath))
             {
@@ -50,6 +55,31 @@ namespace SaveManager
             //Make sure that the version .txt file is matches the current version
             Logger.LogInfo("Creating version file");
             File.WriteAllText(Path.Combine(Application.persistentDataPath, "LastGameVersion.txt"), result.CurrentVersion);
+
+            On.RainWorld.OnModsInit += RainWorld_OnModsInit;
+        }
+
+        private void RainWorld_OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
+        {
+            orig(self);
+
+            try
+            {
+                if (OptionInterface == null)
+                {
+                    OptionInterface = new CustomOptionInterface();
+
+                    SaveManager.Config.Initialize();
+                    OptionInterface.Initialize();
+                }
+
+                MachineConnector.SetRegisteredOI(PLUGIN_GUID, OptionInterface);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Config did not initialize properly");
+                Logger.LogError(ex);
+            }
         }
 
         /// <summary>
