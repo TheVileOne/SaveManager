@@ -44,6 +44,11 @@ namespace SaveManager
 
                 FileInfoResult result = CollectFileInfo();
 
+                string lastGameVersionPath = Path.Combine(Application.persistentDataPath, "LastGameVersion.txt");
+
+                if (result.CurrentVersion != result.LastVersion || !File.Exists(lastGameVersionPath))
+                    createVersionFile(result.CurrentVersion);
+
                 if (result.CurrentVersion == result.LastVersion)
                 {
                     //Handle situation where the version hasn't changed since the last time the mod was enabled
@@ -57,11 +62,6 @@ namespace SaveManager
                     RestoreFromBackup(result.CurrentVersionPath);
                     ManageStrayBackups(result.LastVersionPath);
                 }
-
-                string lastGameVersionPath = Path.Combine(Application.persistentDataPath, "LastGameVersion.txt");
-
-                if (result.CurrentVersion != result.LastVersion || !File.Exists(lastGameVersionPath))
-                    createVersionFile(result.CurrentVersion);
             }
             catch (Exception ex)
             {
