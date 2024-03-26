@@ -252,7 +252,7 @@ namespace SaveManager.Helpers
                 foreach (DirectoryInfo subDir in dirs)
                 {
                     string newDestinationDir = Path.Combine(destPath, subDir.Name);
-                    CopyDirectory(subDir.FullName, newDestinationDir, searchOption);
+                    CopyDirectory(subDir.FullName, newDestinationDir, searchOption, throwOnFail);
                 }
             }
 
