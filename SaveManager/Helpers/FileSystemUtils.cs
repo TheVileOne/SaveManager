@@ -273,7 +273,7 @@ namespace SaveManager.Helpers
             {
                 if (sourcePath != destPath)
                 {
-                    CopyDirectory(sourcePath, destPath, searchOption, true);
+                    CopyDirectory(sourcePath, destPath, searchOption, true); //Throw here, as we don't want to delete directory on fail
                     SafeDeleteDirectory(sourcePath);
                 }
                 else
