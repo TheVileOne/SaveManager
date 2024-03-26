@@ -109,12 +109,16 @@ namespace SaveManager
             string currentPath = Path.Combine(Application.persistentDataPath, sourceName);
             string destPath = Path.Combine(destinationDirectory, sourceName);
             if (File.Exists(destPath) && File.Exists(currentPath)) //Original code doesn't allow file overwrites and breaks
-            {
                 FileSystemUtils.SafeCopyFile(destPath, currentPath);
-                return;
-            }
+            else
+                orig(self, sourceName, destinationDirectory);
 
-            orig(self, sourceName, destinationDirectory);
+            //Handle files being ignored by the backup
+            if (sourceName == "exp1")
+            {
+                self.CopySaveFile("exp2", destinationDirectory);
+                self.CopySaveFile("exp3", destinationDirectory);
+            }
         }
 
         /// <summary>
