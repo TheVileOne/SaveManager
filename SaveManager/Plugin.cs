@@ -26,6 +26,8 @@ namespace SaveManager
 
         public void Awake()
         {
+            On.RainWorld.OnModsInit += RainWorld_OnModsInit;
+
             Logger = base.Logger;
             BackupPath = Path.Combine(Application.persistentDataPath, "backup");
             ConfigFilePath = Path.Combine(Application.persistentDataPath, "ModConfigs", PLUGIN_GUID + ".txt");
@@ -36,29 +38,34 @@ namespace SaveManager
                 return;
             }
 
-            Directory.CreateDirectory(BackupPath); //Create in case it doesn't exist
-
-            FileInfoResult result = CollectFileInfo();
-
-            if (result.CurrentVersion == result.LastVersion)
+            try
             {
-                //Handle situation where the version hasn't changed since the last time the mod was enabled
-                BackupSaves(result.CurrentVersionPath);
-                ManageStrayBackups(result.CurrentVersionPath);
+                Directory.CreateDirectory(BackupPath); //Create in case it doesn't exist
+
+                FileInfoResult result = CollectFileInfo();
+
+                if (result.CurrentVersion == result.LastVersion)
+                {
+                    //Handle situation where the version hasn't changed since the last time the mod was enabled
+                    BackupSaves(result.CurrentVersionPath);
+                    ManageStrayBackups(result.CurrentVersionPath);
+                }
+                else
+                {
+                    //Handle situations where the version has changed since the last time the mod was enabled
+                    BackupSaves(result.LastVersionPath); //Current save files should be stored in the last detected version backup folder
+                    RestoreFromBackup(result.CurrentVersionPath);
+                    ManageStrayBackups(result.LastVersionPath);
+                }
+
+                //Make sure that the version .txt file is matches the current version
+                Logger.LogInfo("Creating version file");
+                File.WriteAllText(Path.Combine(Application.persistentDataPath, "LastGameVersion.txt"), result.CurrentVersion);
             }
-            else
+            catch (Exception ex)
             {
-                //Handle situations where the version has changed since the last time the mod was enabled
-                BackupSaves(result.LastVersionPath); //Current save files should be stored in the last detected version backup folder
-                RestoreFromBackup(result.CurrentVersionPath);
-                ManageStrayBackups(result.LastVersionPath);
+                Logger.LogError(ex);
             }
-
-            //Make sure that the version .txt file is matches the current version
-            Logger.LogInfo("Creating version file");
-            File.WriteAllText(Path.Combine(Application.persistentDataPath, "LastGameVersion.txt"), result.CurrentVersion);
-
-            On.RainWorld.OnModsInit += RainWorld_OnModsInit;
         }
 
         private void RainWorld_OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
