@@ -15,8 +15,9 @@ namespace SaveManager.Helpers
             "expCore1",
             "expCore2",
             "expCore3",
-            "exp",
-            "exp1"
+            "exp1",
+            "exp2",
+            "exp3"
         };
 
         public static bool BackupSaves(string backupPath)
