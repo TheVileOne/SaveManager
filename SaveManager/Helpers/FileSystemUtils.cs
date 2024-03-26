@@ -222,6 +222,8 @@ namespace SaveManager.Helpers
             //Create the destination directory
             Directory.CreateDirectory(destPath);
 
+            Exception fileError = null;
+
             //Get the files in the source directory and copy to the destination directory
             foreach (FileInfo file in dir.GetFiles())
             {
@@ -233,10 +235,14 @@ namespace SaveManager.Helpers
                 catch (Exception ex)
                 {
                     failedToCopy.Add(file.Name);
-                    Plugin.Logger.LogError(ex);
 
-                    if (throwOnFail)
-                        throw ex;
+                    if (fileError == null) //Only record the first exception
+                    {
+                        fileError = ex;
+
+                        if (throwOnFail)
+                            throw fileError;
+                    }
                 }
             }
 
@@ -256,6 +262,8 @@ namespace SaveManager.Helpers
 
                 foreach (string file in failedToCopy)
                     Plugin.Logger.LogInfo(file);
+
+                Plugin.Logger.LogError(fileError);
             }
         }
 
