@@ -58,9 +58,40 @@ namespace SaveManager
                     ManageStrayBackups(result.LastVersionPath);
                 }
 
-                //Make sure that the version .txt file is matches the current version
                 Logger.LogInfo("Creating version file");
-                File.WriteAllText(Path.Combine(Application.persistentDataPath, "LastGameVersion.txt"), result.CurrentVersion);
+
+                Exception fileError = null;
+                bool writeSuccess = false;
+                int writeAttempts = 5;
+                while (writeAttempts != 0)
+                {
+                    //Make sure that the version .txt file is matches the current version
+                    try
+                    {
+                        File.WriteAllText(Path.Combine(Application.persistentDataPath, "LastGameVersion.txt"), result.CurrentVersion);
+                        writeSuccess = true;
+                        writeAttempts = 0;
+                    }
+                    catch (Exception ex)
+                    {
+                        if (fileError == null)
+                            fileError = ex;
+                        writeAttempts--;
+                    }
+                }
+
+                if (fileError != null)
+                {
+                    if (!writeSuccess)
+                    {
+                        Logger.LogError("Failed to overwrite LastGameVersion.txt");
+                        Logger.LogError(fileError);
+                    }
+                    else
+                    {
+                        Logger.LogWarning("LastGameVersion.txt overwritted with errors");
+                    }
+                }
             }
             catch (Exception ex)
             {
