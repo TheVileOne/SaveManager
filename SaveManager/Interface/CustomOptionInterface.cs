@@ -22,11 +22,6 @@ namespace SaveManager.Interface
         /// </summary>
         private const float x_left_align = 20f;
 
-        /// <summary>
-        /// The position by which controls are aligned along the x-axis on the right side
-        /// </summary>
-        private const float x_right_align = 440f;
-
         public override void Initialize()
         {
             base.Initialize();
@@ -44,20 +39,30 @@ namespace SaveManager.Interface
 
         private void initializeOptions(OpTab tab)
         {
-            float headerOffsetY = y_offset - 150f;
-
             //Create elements
             OpLabel tabHeader = new OpLabel(new Vector2(150f, y_offset - 40f), new Vector2(300f, 30f), Translate("Save Management"), FLabelAlignment.Center, true, null);
 
             OpRadioButtonGroup radioOptions = new OpRadioButtonGroup(Config.cfgBackupFrequency);
 
+            tab.AddItems(radioOptions);
+
             radioOptions.SetButtons(new OpRadioButton[]
             {
-                new OpRadioButton(new Vector2(150f, y_offset - 80f)),
-                new OpRadioButton(new Vector2(150f, y_offset - 120f))
+                new OpRadioButton(new Vector2(x_left_align + 120f, y_offset - 160f)),
+                new OpRadioButton(new Vector2(x_left_align + 120f, y_offset - 200f)),
+                new OpRadioButton(new Vector2(x_left_align + 120f, y_offset - 240f))
             });
 
-            OpSimpleButton backupCreateButton = new OpSimpleButton(new Vector2(x_right_align, headerOffsetY - 80f), new Vector2(120f, 30f), Translate("Create Save Backup"))
+            OpLabel radioOptionHeaderLabel = new OpLabel(new Vector2(x_left_align + 20f, y_offset - 120f), new Vector2(60f, 30f), "BACKUP FREQUENCY")
+            {
+                color = UnityEngine.Color.white
+            };
+
+            OpLabel radioOptionLabelOne = new OpLabel(new Vector2(x_left_align + 20f, y_offset - 160f), new Vector2(60f, 30f), "When version changes");
+            OpLabel radioOptionLabelTwo = new OpLabel(new Vector2(x_left_align + 20f, y_offset - 200f), new Vector2(60f, 30f), "Always backup");
+            OpLabel radioOptionLabelThree = new OpLabel(new Vector2(x_left_align + 20f, y_offset - 240f), new Vector2(60f, 30f), "Never backup");
+
+            OpSimpleButton backupCreateButton = new OpSimpleButton(new Vector2(x_left_align, y_offset - 280f), new Vector2(120f, 30f), Translate("Create Save Backup"))
             {
                 description = Translate("Creates a copy of game-related save data")
             };
@@ -68,7 +73,10 @@ namespace SaveManager.Interface
             tab.AddItems(new UIelement[]
             {
                 tabHeader,
-                radioOptions,
+                radioOptionHeaderLabel,
+                radioOptionLabelOne,
+                radioOptionLabelTwo,
+                radioOptionLabelThree,
                 backupCreateButton,
             });
         }
