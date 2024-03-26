@@ -61,46 +61,49 @@ namespace SaveManager
                 string lastGameVersionPath = Path.Combine(Application.persistentDataPath, "LastGameVersion.txt");
 
                 if (result.CurrentVersion != result.LastVersion || !File.Exists(lastGameVersionPath))
-                {
-                    Logger.LogInfo("Creating version file");
-
-                    Exception fileError = null;
-                    bool writeSuccess = false;
-                    int writeAttempts = 5;
-                    while (writeAttempts != 0)
-                    {
-                        //Make sure that the version .txt file is matches the current version
-                        try
-                        {
-                            File.WriteAllText(Path.Combine(Application.persistentDataPath, "LastGameVersion.txt"), result.CurrentVersion);
-                            writeSuccess = true;
-                            writeAttempts = 0;
-                        }
-                        catch (Exception ex)
-                        {
-                            if (fileError == null)
-                                fileError = ex;
-                            writeAttempts--;
-                        }
-                    }
-
-                    if (fileError != null)
-                    {
-                        if (!writeSuccess)
-                        {
-                            Logger.LogError("Failed to overwrite LastGameVersion.txt");
-                            Logger.LogError(fileError);
-                        }
-                        else
-                        {
-                            Logger.LogWarning("LastGameVersion.txt overwritted with errors");
-                        }
-                    }
-                }
+                    createVersionFile(result.CurrentVersion);
             }
             catch (Exception ex)
             {
                 Logger.LogError(ex);
+            }
+        }
+
+        private void createVersionFile(string versionText)
+        {
+            Logger.LogInfo("Creating version file");
+
+            Exception fileError = null;
+            bool writeSuccess = false;
+            int writeAttempts = 5;
+            while (writeAttempts != 0)
+            {
+                //Make sure that the version .txt file is matches the current version
+                try
+                {
+                    File.WriteAllText(Path.Combine(Application.persistentDataPath, "LastGameVersion.txt"), versionText);
+                    writeSuccess = true;
+                    writeAttempts = 0;
+                }
+                catch (Exception ex)
+                {
+                    if (fileError == null)
+                        fileError = ex;
+                    writeAttempts--;
+                }
+            }
+
+            if (fileError != null)
+            {
+                if (!writeSuccess)
+                {
+                    Logger.LogError("Failed to overwrite LastGameVersion.txt");
+                    Logger.LogError(fileError);
+                }
+                else
+                {
+                    Logger.LogWarning("LastGameVersion.txt overwritted with errors");
+                }
             }
         }
 
@@ -193,8 +196,8 @@ namespace SaveManager
                 result.LastVersionPath = result.CurrentVersionPath;
             }
 
-            Logger.LogInfo("Current Version" + result.CurrentVersion);
-            Logger.LogInfo("Last Version" + result.LastVersion);
+            Logger.LogInfo("Current Version " + result.CurrentVersion);
+            Logger.LogInfo("Last Version " + result.LastVersion);
 
             return result;
         }
