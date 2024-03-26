@@ -113,7 +113,7 @@ namespace SaveManager
 
             try
             {
-                IL.PlayerProgression.CreateCopyOfSaves_bool += PlayerProgression_CreateCopyOfSaves_bool;
+                IL.PlayerProgression.CreateCopyOfSaves += PlayerProgression_CreateCopyOfSaves;
                 On.PlayerProgression.CopySaveFile += PlayerProgression_CopySaveFile;
 
                 if (OptionInterface == null)
@@ -132,7 +132,7 @@ namespace SaveManager
             }
         }
 
-        private void PlayerProgression_CreateCopyOfSaves_bool(ILContext il)
+        private void PlayerProgression_CreateCopyOfSaves(ILContext il)
         {
             ILCursor cursor = new ILCursor(il);
 
