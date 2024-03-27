@@ -246,7 +246,7 @@ namespace SaveManager
 
             try
             {
-                IL.PlayerProgression.CreateCopyOfSaves += PlayerProgression_CreateCopyOfSaves;
+                IL.PlayerProgression.CreateCopyOfSaves_bool += PlayerProgression_CreateCopyOfSaves;
                 On.PlayerProgression.CopySaveFile += PlayerProgression_CopySaveFile;
 
                 if (OptionInterface == null)
