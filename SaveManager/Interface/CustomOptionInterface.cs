@@ -1,9 +1,4 @@
 ﻿using Menu.Remix.MixedUI;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using Vector2 = UnityEngine.Vector2;
 
 namespace SaveManager.Interface
@@ -85,31 +80,6 @@ namespace SaveManager.Interface
         {
             Plugin.Logger.LogInfo("Creating backups");
             RWCustom.Custom.rainWorld.progression.CreateCopyOfSaves();
-        }
-
-        /// <summary>
-        /// Creates the elements used by the Remix menu interface to produce a standard OpCheckBox
-        /// </summary>
-        private OpCheckBox createCheckBox(Configurable<bool> configurable, Vector2 position)
-        {
-            return new OpCheckBox(configurable, position)
-            {
-                description = Translate(Config.GetDescription(configurable))
-            };
-        }
-
-        private OpLabel createOptionLabel(UIconfig owner)
-        {
-            return createOptionLabel(owner, new Vector2(60f, owner.ScreenPos.y));
-        }
-
-        private OpLabel createOptionLabel(UIconfig owner, Vector2 pos)
-        {
-            return new OpLabel(pos.x, pos.y, Translate(Config.GetOptionLabel(owner.cfgEntry)), false)
-            {
-                bumpBehav = owner.bumpBehav,
-                description = owner.description
-            };
         }
     }
 }
