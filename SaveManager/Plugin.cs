@@ -282,12 +282,16 @@ namespace SaveManager
         /// </summary>
         public bool RestoreFromBackup(string backupPath)
         {
-            Logger.LogInfo("Restoring save files");
+            Logger.LogInfo("Checking for save data for version " + GameVersionString);
 
             //Check that there are version specific backup files for the current version of the game
             if (FileSystemUtils.HasFiles(backupPath))
+            {
+                Logger.LogInfo("Restoring save files");
                 return Helpers.SaveUtils.RestoreFromBackup(backupPath);
+            }
 
+            Logger.LogInfo("No save data available to restore");
             return false;
         }
 
