@@ -18,3 +18,5 @@
 /lib/Old patch/PUBLIC-Assembly-CSharp.dll
 /lib/Old patch/UnityEngine.CoreModule.dll
 /lib/Old patch/UnityEngine.dll
+/lib/Old patch/Mono.Cecil.dll
+/lib/Old patch/MonoMod.Utils.dll
