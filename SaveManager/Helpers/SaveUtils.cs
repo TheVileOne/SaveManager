@@ -44,7 +44,7 @@ namespace SaveManager.Helpers
             try
             {
                 foreach (string file in SaveFiles) //Copy each save file into the specified path
-                    CopySaveFile(file, backupPath, false);
+                    CopySaveFile(file, backupPath, true);
 
                 return true;
             }
