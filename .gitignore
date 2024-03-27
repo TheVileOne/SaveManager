@@ -4,3 +4,17 @@
 /MultiversionSupport/bin/Release/net48/PUBLIC-Assembly-CSharp.dll
 /lib/PUBLIC-Assembly-CSharp.dll
 /lib/HOOKS-Assembly-CSharp.dll
+/lib/New patch/BepInEx.dll
+/lib/New patch/HOOKS-Assembly-CSharp.dll
+/lib/New patch/Mono.Cecil.dll
+/lib/New patch/MonoMod.Common.dll
+/lib/New patch/MonoMod.RuntimeDetour.dll
+/lib/New patch/MonoMod.Utils.dll
+/lib/New patch/PUBLIC-Assembly-CSharp.dll
+/lib/New patch/UnityEngine.CoreModule.dll
+/lib/New patch/UnityEngine.dll
+/lib/Old patch/BepInEx.dll
+/lib/Old patch/HOOKS-Assembly-CSharp.dll
+/lib/Old patch/PUBLIC-Assembly-CSharp.dll
+/lib/Old patch/UnityEngine.CoreModule.dll
+/lib/Old patch/UnityEngine.dll
