@@ -47,7 +47,7 @@ namespace SaveManager
             ConfigData.configurables.Clear();
 
             //Define config options
-            cfgBackupFrequency = ConfigData.Bind(nameof(cfgBackupFrequency), 0, new ConfigAcceptableRange<int>(0, 1));
+            cfgBackupFrequency = ConfigData.Bind(nameof(cfgBackupFrequency), 0, new ConfigAcceptableRange<int>(0, 2));
             //Plugin.OptionInterface.OnConfigChanged += OnConfigChanged;
         }
 

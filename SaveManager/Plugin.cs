@@ -31,6 +31,8 @@ namespace SaveManager
             BackupPath = Path.Combine(Application.persistentDataPath, "backup");
             ConfigFilePath = Path.Combine(Application.persistentDataPath, "ModConfigs", PLUGIN_GUID + ".txt");
 
+            SaveManager.Config.Load();
+
             On.RainWorld.Start += RainWorld_Start;
             On.RainWorld.OnModsInit += RainWorld_OnModsInit;
         }
@@ -44,6 +46,10 @@ namespace SaveManager
                 Logger.LogWarning("Could not locate persistent data path");
                 return;
             }
+
+            BackupFrequency backupFrequency = (BackupFrequency)SaveManager.Config.GetValue(nameof(SaveManager.Config.cfgBackupFrequency), 0);
+
+            Logger.LogInfo(backupFrequency);
 
             try
             {
@@ -59,14 +65,18 @@ namespace SaveManager
                 if (result.CurrentVersion == result.LastVersion)
                 {
                     //Handle situation where the version hasn't changed since the last time the mod was enabled
-                    BackupSaves(result.CurrentVersionPath);
+                    if (backupFrequency == BackupFrequency.Always)
+                        BackupSaves(result.CurrentVersionPath);
                     ManageStrayBackups(result.CurrentVersionPath);
                 }
                 else
                 {
                     //Handle situations where the version has changed since the last time the mod was enabled
-                    BackupSaves(result.LastVersionPath); //Current save files should be stored in the last detected version backup folder
-                    RestoreFromBackup(result.CurrentVersionPath);
+                    if (backupFrequency != BackupFrequency.Never)
+                    {
+                        BackupSaves(result.LastVersionPath); //Current save files should be stored in the last detected version backup folder
+                        RestoreFromBackup(result.CurrentVersionPath);
+                    }
                     ManageStrayBackups(result.LastVersionPath);
                 }
             }
@@ -295,5 +305,12 @@ namespace SaveManager
             //Copy any existing files to a reserve directory
             FileSystemUtils.CopyDirectory(sourcePath, altPath, SearchOption.AllDirectories);
         }
+    }
+
+    public enum BackupFrequency
+    {
+        VersionChanged,
+        Always,
+        Never,
     }
 }
