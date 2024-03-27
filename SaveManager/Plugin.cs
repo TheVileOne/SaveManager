@@ -33,6 +33,7 @@ namespace SaveManager
 
             On.RainWorld.Start += RainWorld_Start;
             On.RainWorld.OnModsInit += RainWorld_OnModsInit;
+        }
 
         private void RainWorld_Start(On.RainWorld.orig_Start orig, RainWorld self)
         {
@@ -77,8 +78,6 @@ namespace SaveManager
             orig(self);
         }
 
-        }
-
         private void createVersionFile(string versionText)
         {
             Logger.LogInfo("Creating version file");
@@ -90,7 +89,7 @@ namespace SaveManager
             string writePath;
             while (writeAttempts != 0)
             {
-                //Make sure that the version .txt file is matches the current version
+                //Make sure that the version .txt file matches the current version
                 try
                 {
                     writePath = Path.Combine(Application.persistentDataPath, filePath);
