@@ -48,23 +48,23 @@ namespace SaveManager.Interface
 
             radioOptions.SetButtons(new OpRadioButton[]
             {
-                new OpRadioButton(new Vector2(x_left_align + 120f, y_offset - 160f)),
-                new OpRadioButton(new Vector2(x_left_align + 120f, y_offset - 200f)),
-                new OpRadioButton(new Vector2(x_left_align + 120f, y_offset - 240f))
+                new OpRadioButton(new Vector2(x_left_align + 160f, y_offset - 160f)),
+                new OpRadioButton(new Vector2(x_left_align + 160f, y_offset - 200f)),
+                new OpRadioButton(new Vector2(x_left_align + 160f, y_offset - 240f))
             });
 
-            OpLabel radioOptionHeaderLabel = new OpLabel(new Vector2(x_left_align + 20f, y_offset - 120f), new Vector2(60f, 30f), "BACKUP FREQUENCY")
+            OpLabel radioOptionHeaderLabel = new OpLabel(new Vector2(x_left_align + 70f, y_offset - 120f), new Vector2(60f, 30f), Translate("BACKUP FREQUENCY"))
             {
                 color = UnityEngine.Color.white
             };
 
-            OpLabel radioOptionLabelOne = new OpLabel(new Vector2(x_left_align + 20f, y_offset - 160f), new Vector2(60f, 30f), "When version changes");
-            OpLabel radioOptionLabelTwo = new OpLabel(new Vector2(x_left_align + 20f, y_offset - 200f), new Vector2(60f, 30f), "Always backup");
-            OpLabel radioOptionLabelThree = new OpLabel(new Vector2(x_left_align + 20f, y_offset - 240f), new Vector2(60f, 30f), "Never backup");
+            OpLabel radioOptionLabelOne = new OpLabel(new Vector2(x_left_align + 60f, y_offset - 160f), new Vector2(60f, 30f), Translate("When version changes"));
+            OpLabel radioOptionLabelTwo = new OpLabel(new Vector2(x_left_align + 60f, y_offset - 200f), new Vector2(60f, 30f), Translate("Always backup"));
+            OpLabel radioOptionLabelThree = new OpLabel(new Vector2(x_left_align + 60f, y_offset - 240f), new Vector2(60f, 30f), Translate("Never backup"));
 
-            OpSimpleButton backupCreateButton = new OpSimpleButton(new Vector2(x_left_align, y_offset - 280f), new Vector2(120f, 30f), Translate("Create Save Backup"))
+            OpSimpleButton backupCreateButton = new OpSimpleButton(new Vector2(x_left_align + 20f, y_offset - 300f), new Vector2(160f, 30f), Translate("CREATE BACKUP"))
             {
-                description = Translate("Creates a copy of game-related save data")
+                description = Translate("Creates a copy of save game data")
             };
 
             backupCreateButton.OnClick += BackupCreateButton_OnClick;
