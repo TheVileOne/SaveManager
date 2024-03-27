@@ -220,8 +220,8 @@ namespace SaveManager
                 result.LastVersionPath = result.CurrentVersionPath;
             }
 
-            Logger.LogInfo("Current Version " + result.CurrentVersion);
-            Logger.LogInfo("Last Version " + result.LastVersion);
+            //Logger.LogInfo("Current Version " + result.CurrentVersion);
+            //Logger.LogInfo("Last Version " + result.LastVersion);
 
             return result;
         }
@@ -235,7 +235,7 @@ namespace SaveManager
             {
                 string backupsDir = Path.GetFileName(BackupPath);
 
-                Logger.LogInfo("Looking for stray backup directories");
+                Logger.LogInfo("Checking for stray backup directories");
                 List<string> strayBackupDirs = new List<string>();
                 foreach (string dir in Directory.GetDirectories(BackupPath, "*", SearchOption.TopDirectoryOnly))
                 {

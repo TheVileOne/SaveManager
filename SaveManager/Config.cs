@@ -13,9 +13,6 @@ namespace SaveManager
         /// </summary>
         public static bool SafeToLoad;
 
-        public static bool SaveInProgress;
-        public static bool ReloadInProgress;
-
         /// <summary>
         /// Contains config values that are managed by the OptionInterface. This should only be interacted with after RainWorld has initialized to avoid errors.
         /// </summary>
@@ -48,7 +45,6 @@ namespace SaveManager
 
             //Define config options
             cfgBackupFrequency = ConfigData.Bind(nameof(cfgBackupFrequency), 0, new ConfigAcceptableRange<int>(0, 2));
-            //Plugin.OptionInterface.OnConfigChanged += OnConfigChanged;
         }
 
         public static T GetValue<T>(string settingName, T expectedDefault) where T : IConvertible
