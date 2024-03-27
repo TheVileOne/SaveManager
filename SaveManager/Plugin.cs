@@ -21,16 +21,22 @@ namespace SaveManager
 
         public static string BackupPath;
         public static string ConfigFilePath;
+        public static string GameVersionString;
 
         public static CustomOptionInterface OptionInterface;
 
         public void Awake()
         {
-            On.RainWorld.OnModsInit += RainWorld_OnModsInit;
-
             Logger = base.Logger;
             BackupPath = Path.Combine(Application.persistentDataPath, "backup");
             ConfigFilePath = Path.Combine(Application.persistentDataPath, "ModConfigs", PLUGIN_GUID + ".txt");
+
+            On.RainWorld.Start += RainWorld_Start;
+            On.RainWorld.OnModsInit += RainWorld_OnModsInit;
+
+        private void RainWorld_Start(On.RainWorld.orig_Start orig, RainWorld self)
+        {
+            GameVersionString = RainWorld.GAME_VERSION_STRING.TrimStart('v');
 
             if (!Directory.Exists(Application.persistentDataPath))
             {
@@ -44,9 +50,9 @@ namespace SaveManager
 
                 FileInfoResult result = CollectFileInfo();
 
-                string lastGameVersionPath = Path.Combine(Application.persistentDataPath, "LastGameVersion.txt");
+                string lastVersionFilePath = Path.Combine(Application.persistentDataPath, "LastGameVersion.txt");
 
-                if (result.CurrentVersion != result.LastVersion || !File.Exists(lastGameVersionPath))
+                if (result.CurrentVersion != result.LastVersion || !File.Exists(lastVersionFilePath))
                     createVersionFile(result.CurrentVersion);
 
                 if (result.CurrentVersion == result.LastVersion)
@@ -67,21 +73,29 @@ namespace SaveManager
             {
                 Logger.LogError(ex);
             }
+
+            orig(self);
+        }
+
         }
 
         private void createVersionFile(string versionText)
         {
             Logger.LogInfo("Creating version file");
 
+            string filePath = "LastGameVersion.txt";
             Exception fileError = null;
             bool writeSuccess = false;
-            int writeAttempts = 5;
+            int writeAttempts = 2;
+            string writePath;
             while (writeAttempts != 0)
             {
                 //Make sure that the version .txt file is matches the current version
                 try
                 {
-                    File.WriteAllText(Path.Combine(Application.persistentDataPath, "LastGameVersion.txt"), versionText);
+                    writePath = Path.Combine(Application.persistentDataPath, filePath);
+
+                    File.WriteAllText(writePath, versionText);
                     writeSuccess = true;
                     writeAttempts = 0;
                 }
@@ -144,7 +158,7 @@ namespace SaveManager
 
         private string getRelativeBackupPath(string backupDir)
         {
-            return Path.Combine(backupDir, Application.version);
+            return Path.Combine(backupDir, GameVersionString);
         }
 
         /// <summary>
@@ -174,7 +188,7 @@ namespace SaveManager
         {
             FileInfoResult result = new FileInfoResult();
 
-            result.CurrentVersion = Application.version;
+            result.CurrentVersion = GameVersionString;
             result.CurrentVersionPath = Path.Combine(BackupPath, result.CurrentVersion);
 
             string versionCheckPath = Path.Combine(Application.persistentDataPath, "LastGameVersion.txt");
@@ -186,6 +200,7 @@ namespace SaveManager
 
                 fileData.MoveNext();
                 result.LastVersion = fileData.Current;
+                fileData.Dispose();
             }
 
             if (!string.IsNullOrEmpty(result.LastVersion))
