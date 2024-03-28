@@ -39,7 +39,8 @@ namespace SaveManager
 
         private void RainWorld_Start(On.RainWorld.orig_Start orig, RainWorld self)
         {
-            GameVersionString = RainWorld.GAME_VERSION_STRING.TrimStart('v');
+            //Use reflection to prevent const from being hardcoded into mod on build
+            GameVersionString = ((string)typeof(RainWorld).GetField(nameof(RainWorld.GAME_VERSION_STRING)).GetValue(null)).TrimStart('v');
 
             if (!Directory.Exists(Application.persistentDataPath))
             {
@@ -220,8 +221,8 @@ namespace SaveManager
                 result.LastVersionPath = result.CurrentVersionPath;
             }
 
-            //Logger.LogInfo("Current Version " + result.CurrentVersion);
-            //Logger.LogInfo("Last Version " + result.LastVersion);
+            Logger.LogInfo("Current Version " + result.CurrentVersion);
+            Logger.LogInfo("Last Version " + result.LastVersion);
 
             return result;
         }
