@@ -50,6 +50,11 @@ namespace SaveManager
 
         public static CustomOptionInterface OptionInterface;
 
+        /// <summary>
+        /// A flag that indicates that version saving was always enabled as compared to enabled via the Remix menu
+        /// </summary>
+        private static bool versionSavingEnabledOnStartUp;
+
         public void Awake()
         {
             Logger = base.Logger;
@@ -86,6 +91,8 @@ namespace SaveManager
 
                 if (SaveManager.Config.PerVersionSaving)
                 {
+                    versionSavingEnabledOnStartUp = true;
+
                     FileInfoResult result = CollectFileInfo();
 
                     BackupSuccessCheckPath = Path.Combine(Application.persistentDataPath, "savemanager-check.txt");
@@ -237,7 +244,7 @@ namespace SaveManager
 
         private void RainWorld_OnDestroy(On.RainWorld.orig_OnDestroy orig, RainWorld self)
         {
-            if (BackupSuccessCheckPath != null) //Mod logic hasn't been applied if this is null
+            if (BackupSuccessCheckPath != null || (SaveManager.Config.PerVersionSaving && !versionSavingEnabledOnStartUp)) //Mod logic hasn't been applied if this is null
             {
                 //Apply any progress made to existing saves, or new saves while the game has been running to the version-specific backup
                 BackupSaves(Path.Combine(BackupPath, GameVersionString));
