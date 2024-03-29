@@ -42,7 +42,14 @@ namespace SaveManager.Interface
                 description = Config.GetDescription(Config.cfgEnablePerVersionSaves)
             };
             OpLabel enableVersionSavesLabel = new OpLabel(x_left_align + 60f, y_offset - 80f, Translate(Config.GetOptionLabel(Config.cfgEnablePerVersionSaves)));
-            
+
+            OpCheckBox inheritVersionSavesToggle = new OpCheckBox(Config.cfgInheritVersionSaves, new Vector2(x_left_align + 20f, y_offset - 120f))
+            {
+                description = Config.GetDescription(Config.cfgInheritVersionSaves)
+            };
+            OpLabel inheritVersionSavesLabel = new OpLabel(x_left_align + 60f, y_offset - 120f, Translate(Config.GetOptionLabel(Config.cfgInheritVersionSaves)));
+
+
             /*
             OpRadioButtonGroup radioOptions = new OpRadioButtonGroup(Config.cfgBackupFrequency);
 
@@ -65,11 +72,17 @@ namespace SaveManager.Interface
             OpLabel radioOptionLabelThree = new OpLabel(new Vector2(x_left_align + 60f, y_offset - 240f), new Vector2(60f, 30f), Translate("Never backup"));
             */
 
-            OpSimpleButton backupCreateButton = new OpSimpleButton(new Vector2(x_left_align + 20f, y_offset - 300f), new Vector2(160f, 30f), Translate("CREATE BACKUP"))
+            OpSimpleButton backupRestoreButton = new OpSimpleButton(new Vector2(x_left_align + 20f, y_offset - 170f), new Vector2(200f, 30f), Translate("RESTORE RECENT BACKUP"))
+            {
+                description = Translate("Swaps current save game data with most recent save backup from file")
+            };
+
+            OpSimpleButton backupCreateButton = new OpSimpleButton(new Vector2(backupRestoreButton.PosX + 210f, y_offset - 170f), new Vector2(200f, 30f), Translate("CREATE BACKUP"))
             {
                 description = Translate("Creates a copy of save game data")
             };
 
+            backupRestoreButton.OnClick += BackupRestoreButton_OnClick;
             backupCreateButton.OnClick += BackupCreateButton_OnClick;
 
             //Add elements to container
@@ -78,12 +91,20 @@ namespace SaveManager.Interface
                 tabHeader,
                 enableVersionSavesToggle,
                 enableVersionSavesLabel,
+                inheritVersionSavesToggle,
+                inheritVersionSavesLabel,
                 /*radioOptionHeaderLabel,
                 radioOptionLabelOne,
                 radioOptionLabelTwo,
                 radioOptionLabelThree,*/
+                backupRestoreButton,
                 backupCreateButton,
             });
+        }
+
+        private void BackupRestoreButton_OnClick(UIfocusable trigger)
+        {
+            throw new System.NotImplementedException();
         }
 
         private void BackupCreateButton_OnClick(UIfocusable trigger)

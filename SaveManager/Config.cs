@@ -32,6 +32,7 @@ namespace SaveManager
         public static StringDictionary ConfigDataRaw;
 
         public static Configurable<bool> cfgEnablePerVersionSaves;
+        public static Configurable<bool> cfgInheritVersionSaves;
         //public static Configurable<int> cfgBackupFrequency;
 
         public static void Load()
@@ -46,9 +47,14 @@ namespace SaveManager
 
             //Define config options
             cfgEnablePerVersionSaves = ConfigData.Bind(nameof(cfgEnablePerVersionSaves), true,
-                new ConfigInfo("Maintain save files for each game version", new object[]
+                new ConfigInfo("Save file data will be stored for each game version", new object[]
             {
-                "Enable version-specific saving"
+                "Store save data per game version"
+            }));
+            cfgInheritVersionSaves = ConfigData.Bind(nameof(cfgInheritVersionSaves), true,
+                new ConfigInfo("Save file data from other game versions will be retained on a game version change", new object[]
+            {
+                "Inherit save data on game version change (if compatible)"
             }));
             //cfgBackupFrequency = ConfigData.Bind(nameof(cfgBackupFrequency), 0, new ConfigAcceptableRange<int>(0, 2));
         }
