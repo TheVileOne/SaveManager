@@ -192,7 +192,7 @@ namespace SaveManager.Helpers
                     if (!long.TryParse(timeString, out creationDateInSeconds))
                         continue;
 
-                    if (creationDateInSeconds > mostRecentCreationDateInSeconds)
+                    if (creationDateInSeconds > mostRecentCreationDateInSeconds && ContainsSaveFiles(dir))
                     {
                         mostRecentCreationDateInSeconds = creationDateInSeconds;
                         mostRecentBackupDirectory = dir;
