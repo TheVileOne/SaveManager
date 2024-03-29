@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace SaveManager.Helpers
@@ -20,6 +21,24 @@ namespace SaveManager.Helpers
             "exp3"
         };
 
+        /// <summary>
+        /// Checks directory path for save files
+        /// </summary>
+        /// <param name="path">The path to check</param>
+        /// <param name="checkSpecificFiles">Whether each save file should be checked individually, or to assume all files are save files</param>
+        public static bool ContainsSaveFiles(string path, bool checkSpecificFiles = false)
+        {
+            if (!checkSpecificFiles)
+                return FileSystemUtils.HasFiles(path);
+
+            DirectoryInfo dir = new DirectoryInfo(path);
+
+            //Check that directory contains at least one save file
+            if (dir.Exists)
+                return Array.Exists(dir.GetFiles(), f => SaveFiles.Contains(f.Name));
+            return false;
+        }
+
         public static bool BackupSaves(string backupPath)
         {
             try
@@ -33,7 +52,7 @@ namespace SaveManager.Helpers
             }
             catch (Exception ex)
             {
-                Plugin.Logger.LogError("Error occurred while copying save backups");
+                Plugin.Logger.LogError("Error occurred while copying save file");
                 Plugin.Logger.LogError(ex);
                 return false;
             }
@@ -50,31 +69,31 @@ namespace SaveManager.Helpers
             }
             catch (Exception ex)
             {
-                Plugin.Logger.LogError("Error occurred while copying save backups");
+                Plugin.Logger.LogError("Error occurred while copying save files");
                 Plugin.Logger.LogError(ex);
                 return false;
             }
         }
 
         /// <summary>
-        /// Moves a save file between the persistent data path, and the specified backup path
+        /// Moves a save file between the persistent data path, and a specified directory
         /// </summary>
         /// <param name="filename">The file to copy</param>
-        /// <param name="backupPath">The path where file backups are stored</param>
-        /// <param name="copyingFromBackups">Changes the move destination</param>
-        public static void CopySaveFile(string filename, string backupPath, bool copyingFromBackups)
+        /// <param name="targetPath">The path where a file is copied to, or copied from</param>
+        /// <param name="copyingFromTargetPath">Identifies the source location of the file</param>
+        public static void CopySaveFile(string filename, string targetPath, bool copyingFromTargetPath)
         {
             string sourcePath, destPath;
 
-            if (copyingFromBackups)
+            if (copyingFromTargetPath)
             {
-                sourcePath = Path.Combine(backupPath, filename);
+                sourcePath = Path.Combine(targetPath, filename);
                 destPath = Path.Combine(Application.persistentDataPath, filename);
             }
             else
             {
                 sourcePath = Path.Combine(Application.persistentDataPath, filename);
-                destPath = Path.Combine(backupPath, filename);
+                destPath = Path.Combine(targetPath, filename);
             }
 
             if (File.Exists(sourcePath))

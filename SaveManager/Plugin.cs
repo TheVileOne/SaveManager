@@ -23,6 +23,11 @@ namespace SaveManager
         public static string ConfigFilePath;
         public static string GameVersionString;
 
+        /// <summary>
+        /// The path to a check file that is used to check if the mod backs up save files successfully
+        /// </summary>
+        public static string BackupSuccessCheckPath;
+
         public static CustomOptionInterface OptionInterface;
 
         public void Awake()
@@ -60,13 +65,44 @@ namespace SaveManager
 
                 string lastVersionFilePath = Path.Combine(Application.persistentDataPath, "LastGameVersion.txt");
 
-                if (result.CurrentVersion != result.LastVersion || !File.Exists(lastVersionFilePath))
-                    createVersionFile(result.CurrentVersion);
+                BackupSuccessCheckPath = Path.Combine(Application.persistentDataPath, "savemanager-check.txt");
 
+                if (!File.Exists(BackupSuccessCheckPath)) //Create a file to let us know if save data is backed up when Rain World shuts down
+                {
+                    File.Create(BackupSuccessCheckPath);
+
+                    //Check for save files specific to the current game version
+                    if (!Helpers.SaveUtils.ContainsSaveFiles(result.CurrentVersionPath))
+                    {
+                        //Creates copy of current save files in version-specific folder
+                        BackupSaves(result.CurrentVersionPath);
+                    }
+                    else
+                    {
+                        //Replaces current save files with save files from version-specific folder
+                        RestoreFromBackup(result.CurrentVersionPath);
+                    }
+
+                    //When there is a version mismatch, presume that strays are from the past version, and not the current one
+                    ManageStrayBackups(result.CurrentVersion != result.LastVersion ?
+                        result.LastVersionPath : result.CurrentVersionPath);
+                }
+                else
+                {
+                    Logger.LogWarning("Save data backup was unsuccessful on game exit. Backing up current saves.");
+
+                    //Hopefully this never triggers, but if it does, the save files on old patch builds cannot be salvaged due to
+                    //a save bug caused by format compatibilities with newer versions. This logic is fine if the version is unchanged.
+                    if (result.CurrentVersion == result.LastVersion || !result.CurrentVersion.StartsWith("1.9.1"))
+                        BackupSaves(result.LastVersionPath);
+                }
+
+                /*
+                //Old logic
                 if (result.CurrentVersion == result.LastVersion)
                 {
                     //Handle situation where the version hasn't changed since the last time the mod was enabled
-                    if (backupFrequency == BackupFrequency.Always)
+                    if (backupFrequency == BackupFrequency.Always || !File.Exists(result.LastVersionPath))
                         BackupSaves(result.CurrentVersionPath);
                     ManageStrayBackups(result.CurrentVersionPath);
                 }
@@ -75,11 +111,19 @@ namespace SaveManager
                     //Handle situations where the version has changed since the last time the mod was enabled
                     if (backupFrequency != BackupFrequency.Never)
                     {
-                        BackupSaves(result.LastVersionPath); //Current save files should be stored in the last detected version backup folder
+                        //Only newer versions support LastVersion backups. Older versions overwrite saves before any mod can activate
+                        bool allowBackup = result.CurrentVersion.StartsWith("1.9.1") || result.CurrentVersion.StartsWith("2");
+
+                        if (allowBackup)
+                            BackupSaves(result.LastVersionPath); //Current save files should be stored in the last detected version backup folder
                         RestoreFromBackup(result.CurrentVersionPath);
                     }
                     ManageStrayBackups(result.LastVersionPath);
                 }
+                */
+
+                if (result.CurrentVersion != result.LastVersion || !File.Exists(lastVersionFilePath))
+                    createVersionFile(result.CurrentVersion);
             }
             catch (Exception ex)
             {
@@ -133,6 +177,7 @@ namespace SaveManager
 
         private void RainWorld_OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
         {
+            On.RainWorld.OnDestroy += RainWorld_OnDestroy;
             orig(self);
 
             try
@@ -154,6 +199,17 @@ namespace SaveManager
                 Logger.LogError("Config did not initialize properly");
                 Logger.LogError(ex);
             }
+        }
+
+        private void RainWorld_OnDestroy(On.RainWorld.orig_OnDestroy orig, RainWorld self)
+        {
+            if (BackupSuccessCheckPath != null) //Mod logic hasn't been applied if this is null
+            {
+                //Apply any progress made to existing saves, or new saves while the game has been running to the version-specific backup
+                BackupSaves(Path.Combine(BackupPath, GameVersionString));
+                FileSystemUtils.SafeDeleteFile(BackupSuccessCheckPath); //Remove file created by the mod when Rain World starts
+            }
+            orig(self);
         }
 
         private void PlayerProgression_CreateCopyOfSaves(ILContext il)
@@ -198,8 +254,10 @@ namespace SaveManager
         {
             FileInfoResult result = new FileInfoResult();
 
+            string saveDataPath = BackupPath;
+
             result.CurrentVersion = GameVersionString;
-            result.CurrentVersionPath = Path.Combine(BackupPath, result.CurrentVersion);
+            result.CurrentVersionPath = Path.Combine(saveDataPath, result.CurrentVersion);
 
             string versionCheckPath = Path.Combine(Application.persistentDataPath, "LastGameVersion.txt");
 
@@ -214,7 +272,7 @@ namespace SaveManager
             }
 
             if (!string.IsNullOrEmpty(result.LastVersion))
-                result.LastVersionPath = Path.Combine(BackupPath, result.LastVersion);
+                result.LastVersionPath = Path.Combine(saveDataPath, result.LastVersion);
             else
             {
                 result.LastVersion = result.CurrentVersion;
