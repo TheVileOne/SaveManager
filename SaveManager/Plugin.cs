@@ -19,14 +19,34 @@ namespace SaveManager
 
         public static new ManualLogSource Logger { get; private set; }
 
+        /// <summary>
+        /// The path to the backup folder
+        /// </summary>
         public static string BackupPath;
-        public static string ConfigFilePath;
-        public static string GameVersionString;
+
+        private static string _overwritePath;
+        /// <summary>
+        /// The path to the backup folder used to store save files that need to be overwritten by the mod
+        /// </summary>
+        public static string BackupOverwritePath
+        {
+            set => _overwritePath = value;
+            get
+            {
+                if (_overwritePath == null)
+                    return Path.Combine(BackupPath, GameVersionString, ConfigFilePath, BACKUP_OVERWRITE_FOLDER_NAME);
+                return _overwritePath;
+            }
+        }
+
+        public const string BACKUP_OVERWRITE_FOLDER_NAME = "last-overwrite";
 
         /// <summary>
         /// The path to a check file that is used to check if the mod backs up save files successfully
         /// </summary>
         public static string BackupSuccessCheckPath;
+        public static string ConfigFilePath;
+        public static string GameVersionString;
 
         public static CustomOptionInterface OptionInterface;
 
@@ -69,6 +89,8 @@ namespace SaveManager
 
                 if (!File.Exists(BackupSuccessCheckPath)) //Create a file to let us know if save data is backed up when Rain World shuts down
                 {
+                    //This directory stores save files that will be replaced by the mod 
+                    BackupOverwritePath = Path.Combine(result.CurrentVersionPath, BACKUP_OVERWRITE_FOLDER_NAME);
                     File.Create(BackupSuccessCheckPath);
 
                     //Check for save files specific to the current game version
@@ -94,7 +116,10 @@ namespace SaveManager
                     //Hopefully this never triggers, but if it does, the save files on old patch builds cannot be salvaged due to
                     //a save bug caused by format compatibilities with newer versions. This logic is fine if the version is unchanged.
                     if (result.CurrentVersion == result.LastVersion || !result.CurrentVersion.StartsWith("1.9.1"))
+                    {
+                        BackupOverwritePath = Path.Combine(result.LastVersionPath, BACKUP_OVERWRITE_FOLDER_NAME);
                         BackupSaves(result.LastVersionPath);
+                    }
                 }
 
                 /*
@@ -329,10 +354,6 @@ namespace SaveManager
         public bool BackupSaves(string backupPath)
         {
             Logger.LogInfo("Backing up save files");
-
-            if (FileSystemUtils.HasFiles(backupPath))
-                MoveDirectoryToAltPath(backupPath);
-
             return Helpers.SaveUtils.BackupSaves(backupPath);
         }
 
@@ -352,21 +373,6 @@ namespace SaveManager
 
             Logger.LogInfo("No save data available to restore");
             return false;
-        }
-
-        /// <summary>
-        /// Copies a directory and its contents to a secondary folder
-        /// </summary>
-        public void MoveDirectoryToAltPath(string sourcePath)
-        {
-            string altPath = Path.Combine(sourcePath, "old");
-
-            //Delete any preexisting folders in the reserve path to make room for new backup storage 
-            if (Directory.Exists(altPath))
-                FileSystemUtils.SafeDeleteDirectory(altPath);
-
-            //Copy any existing files to a reserve directory
-            FileSystemUtils.CopyDirectory(sourcePath, altPath, SearchOption.AllDirectories);
         }
     }
 

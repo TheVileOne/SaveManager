@@ -110,8 +110,6 @@ namespace SaveManager.Helpers
             string sourceFilename = Path.GetFileName(sourcePath);
             string destFilename = Path.GetFileName(destPath);
 
-            Plugin.Logger.LogInfo($"Moving {sourceFilename} to {destFilename}");
-
             if (sourcePath == destPath)
             {
                 Plugin.Logger.LogInfo($"Same filepath for {sourceFilename}");

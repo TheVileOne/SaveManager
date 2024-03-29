@@ -43,7 +43,7 @@ namespace SaveManager.Helpers
         {
             try
             {
-                Directory.CreateDirectory(backupPath);
+                Directory.CreateDirectory(Plugin.BackupOverwritePath);
 
                 foreach (string file in SaveFiles) //Copy each save file into the specified path
                     CopySaveFile(file, backupPath, false);
@@ -62,6 +62,8 @@ namespace SaveManager.Helpers
         {
             try
             {
+                Directory.CreateDirectory(Plugin.BackupOverwritePath);
+
                 foreach (string file in SaveFiles) //Copy each save file into the specified path
                     CopySaveFile(file, backupPath, true);
 
@@ -96,6 +98,11 @@ namespace SaveManager.Helpers
                 destPath = Path.Combine(targetPath, filename);
             }
 
+            //Make sure that any existing files get transferred to the last-overwrite directory before getting copied over
+            if (File.Exists(destPath))
+                FileSystemUtils.SafeMoveFile(destPath, Path.Combine(Plugin.BackupOverwritePath, filename));
+
+            //Copy file to destination
             if (File.Exists(sourcePath))
                 FileSystemUtils.SafeCopyFile(sourcePath, destPath);
         }
