@@ -163,7 +163,7 @@ namespace SaveManager.Helpers
         public static string GetRecentBackupPath(string path)
         {
             //Get backups from the version specific directory
-            string[] backupDirs = Directory.GetDirectories(Path.Combine(Plugin.BackupPath, Plugin.GameVersionString));
+            string[] backupDirs = Directory.GetDirectories(path);
 
             string mostRecentBackupDirectory = null;
             long mostRecentCreationDateInSeconds = 0;
