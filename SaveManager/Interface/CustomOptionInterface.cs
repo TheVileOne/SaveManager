@@ -110,6 +110,8 @@ namespace SaveManager.Interface
         private void BackupCreateButton_OnClick(UIfocusable trigger)
         {
             Plugin.Logger.LogInfo("Creating backups");
+
+            Helpers.SaveUtils.BackupsCreatedThisSession = true;
             RWCustom.Custom.rainWorld.progression.CreateCopyOfSaves();
         }
     }

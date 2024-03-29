@@ -22,6 +22,11 @@ namespace SaveManager.Helpers
         };
 
         /// <summary>
+        /// A flag that indicates that the user has created at least one backup through the Remix option interface
+        /// </summary>
+        public static bool BackupsCreatedThisSession;
+
+        /// <summary>
         /// Checks directory path for save files
         /// </summary>
         /// <param name="path">The path to check</param>
@@ -136,6 +141,67 @@ namespace SaveManager.Helpers
             }
         }
 
+        public static string GetRecentBackupPath()
+        {
+            //Check that we should look for the typical timestamped backup folders instead of the overwrite directory
+            if (BackupsCreatedThisSession || !ContainsSaveFiles(Plugin.BackupOverwritePath))
+            {
+                string mostRecentBackupDirectory = GetRecentBackupPath(Path.Combine(Plugin.BackupPath, Plugin.GameVersionString));
+
+                //Handle situation where there are no directories found
+                if (mostRecentBackupDirectory == null)
+                {
+                    //This is very unlikely to trigger. The contents of the backup folder probably was changed by the user
+                    if (BackupsCreatedThisSession && ContainsSaveFiles(Plugin.BackupOverwritePath))
+                        return Plugin.BackupOverwritePath;
+                }
+                return mostRecentBackupDirectory;
+            }
+            return Plugin.BackupOverwritePath;
+        }
+
+        public static string GetRecentBackupPath(string path)
+        {
+            //Get backups from the version specific directory
+            string[] backupDirs = Directory.GetDirectories(Path.Combine(Plugin.BackupPath, Plugin.GameVersionString));
+
+            string mostRecentBackupDirectory = null;
+            long mostRecentCreationDateInSeconds = 0;
+            foreach (string dir in backupDirs)
+            {
+                string directoryName = Path.GetDirectoryName(dir);
+
+                if (directoryName != Plugin.BACKUP_OVERWRITE_FOLDER_NAME)
+                {
+                    /*
+                     * File format (separated by underscores)
+                     * 0 - Total time since file creation and some hardcoded year in seconds
+                     * 1 - Date format "yyyy-MM-dd"
+                     * 2 - Date format (hours/minutes) "HH-mm"
+                     * 3 - Only new format - contains USR to indicate user created backup
+                     */
+
+                    int sepIndex = directoryName.IndexOf('_'); //We need the time in seconds
+
+                    if (sepIndex == -1)
+                        continue;
+
+                    string timeString = directoryName.Substring(0, sepIndex);
+
+                    long creationDateInSeconds = -1;
+                    if (!long.TryParse(timeString, out creationDateInSeconds))
+                        continue;
+
+                    if (creationDateInSeconds > mostRecentCreationDateInSeconds)
+                    {
+                        mostRecentCreationDateInSeconds = creationDateInSeconds;
+                        mostRecentBackupDirectory = dir;
+                    }
+                }
+            }
+            return mostRecentBackupDirectory;
+        }
+
         private static void handleError(int errorCode)
         {
             string errorMessage = "Unknown file error occurred";
@@ -148,6 +214,5 @@ namespace SaveManager.Helpers
 
             Plugin.Logger.LogWarning(errorMessage);
         }
-
     }
 }
