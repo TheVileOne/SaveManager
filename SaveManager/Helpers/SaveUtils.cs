@@ -48,14 +48,20 @@ namespace SaveManager.Helpers
         {
             try
             {
-                Directory.CreateDirectory(Plugin.BackupOverwritePath);
+                bool targetingOverwritePath = backupPath == Plugin.BackupOverwritePath;
+                string overwritePath = createOverwriteDirectory(targetingOverwritePath);
 
                 short errorCodeHandle = -1;
                 foreach (string file in SaveFiles) //Copy each save file into the specified path
-                    CopySaveFile(file, backupPath, false, ref errorCodeHandle);
+                    CopySaveFile(file, backupPath, false, overwritePath, ref errorCodeHandle);
 
                 if (errorCodeHandle != -1)
                     handleError(errorCodeHandle);
+
+                //Backup process shouldn't be targeting this directory directly. It should be okay to discard temp storage
+                if (targetingOverwritePath)
+                    FileSystemUtils.SafeDeleteDirectory(backupPath);
+
                 return true;
             }
             catch (Exception ex)
@@ -70,14 +76,28 @@ namespace SaveManager.Helpers
         {
             try
             {
-                Directory.CreateDirectory(Plugin.BackupOverwritePath);
+                //There will be issues when transferring files directly to, or from this directory
+                bool targetingOverwritePath = backupPath == Plugin.BackupOverwritePath;
+
+                string overwritePath = createOverwriteDirectory(targetingOverwritePath);
 
                 short errorCodeHandle = -1;
                 foreach (string file in SaveFiles) //Copy each save file into the specified path
-                    CopySaveFile(file, backupPath, true, ref errorCodeHandle);
+                    CopySaveFile(file, backupPath, true, overwritePath, ref errorCodeHandle);
 
                 if (errorCodeHandle != -1)
                     handleError(errorCodeHandle);
+
+                if (targetingOverwritePath)
+                {
+                    //Move all files from the temp directory back into the actual overwrite directory
+                    foreach (string filePath in Directory.GetFiles(overwritePath))
+                        FileSystemUtils.SafeMoveFile(filePath, Plugin.BackupOverwritePath);
+
+                    //Delete temp directory when process is finished
+                    FileSystemUtils.SafeDeleteDirectory(overwritePath);
+                }
+
                 return true;
             }
             catch (Exception ex)
@@ -89,12 +109,31 @@ namespace SaveManager.Helpers
         }
 
         /// <summary>
+        /// Ensures that a valid overwrite directory is used during the copy process
+        /// </summary>
+        private static string createOverwriteDirectory(bool useTempPath)
+        {
+            Directory.CreateDirectory(Plugin.BackupOverwritePath);
+
+            if (useTempPath)
+            {
+                Plugin.Logger.LogInfo("Creating temp directory");
+
+                string overwritePath = Path.Combine(Plugin.BackupPath, "temp");
+
+                Directory.CreateDirectory(overwritePath);
+                return overwritePath;
+            }
+            return Plugin.BackupOverwritePath;
+        }
+
+        /// <summary>
         /// Moves a save file between the persistent data path, and a specified directory
         /// </summary>
         /// <param name="filename">The file to copy</param>
         /// <param name="targetPath">The path where a file is copied to, or copied from</param>
         /// <param name="copyingFromTargetPath">Identifies the source location of the file</param>
-        public static void CopySaveFile(string filename, string targetPath, bool copyingFromTargetPath, ref short copyErrorCode)
+        public static void CopySaveFile(string filename, string targetPath, bool copyingFromTargetPath, string overwritePath, ref short copyErrorCode)
         {
             string sourcePath, destPath;
 
@@ -112,7 +151,7 @@ namespace SaveManager.Helpers
             //Make sure that any existing files get transferred to the last-overwrite directory before getting copied over
             if (File.Exists(destPath))
             {
-                if (!FileSystemUtils.SafeMoveFile(destPath, Path.Combine(Plugin.BackupOverwritePath, filename)))
+                if (!FileSystemUtils.SafeMoveFile(destPath, Path.Combine(overwritePath, filename)))
                     handleError(1, ref copyErrorCode);
             }
 
