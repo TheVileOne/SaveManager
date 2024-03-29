@@ -31,7 +31,8 @@ namespace SaveManager
         /// </summary>
         public static StringDictionary ConfigDataRaw;
 
-        public static Configurable<int> cfgBackupFrequency;
+        public static Configurable<bool> cfgEnablePerVersionSaves;
+        //public static Configurable<int> cfgBackupFrequency;
 
         public static void Load()
         {
@@ -44,7 +45,12 @@ namespace SaveManager
             ConfigData.configurables.Clear();
 
             //Define config options
-            cfgBackupFrequency = ConfigData.Bind(nameof(cfgBackupFrequency), 0, new ConfigAcceptableRange<int>(0, 2));
+            cfgEnablePerVersionSaves = ConfigData.Bind(nameof(cfgEnablePerVersionSaves), true,
+                new ConfigInfo("Maintain save files for each game version", new object[]
+            {
+                "Enable version-specific saving"
+            }));
+            //cfgBackupFrequency = ConfigData.Bind(nameof(cfgBackupFrequency), 0, new ConfigAcceptableRange<int>(0, 2));
         }
 
         public static T GetValue<T>(string settingName, T expectedDefault) where T : IConvertible

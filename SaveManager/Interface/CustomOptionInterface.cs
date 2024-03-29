@@ -37,6 +37,13 @@ namespace SaveManager.Interface
             //Create elements
             OpLabel tabHeader = new OpLabel(new Vector2(150f, y_offset - 40f), new Vector2(300f, 30f), Translate("Save Management"), FLabelAlignment.Center, true, null);
 
+            OpCheckBox enableVersionSavesToggle = new OpCheckBox(Config.cfgEnablePerVersionSaves, new Vector2(x_left_align + 20f, y_offset - 80f))
+            {
+                description = Config.GetDescription(Config.cfgEnablePerVersionSaves)
+            };
+            OpLabel enableVersionSavesLabel = new OpLabel(x_left_align + 60f, y_offset - 80f, Translate(Config.GetOptionLabel(Config.cfgEnablePerVersionSaves)));
+            
+            /*
             OpRadioButtonGroup radioOptions = new OpRadioButtonGroup(Config.cfgBackupFrequency);
 
             tab.AddItems(radioOptions);
@@ -56,6 +63,7 @@ namespace SaveManager.Interface
             OpLabel radioOptionLabelOne = new OpLabel(new Vector2(x_left_align + 60f, y_offset - 160f), new Vector2(60f, 30f), Translate("When version changes"));
             OpLabel radioOptionLabelTwo = new OpLabel(new Vector2(x_left_align + 60f, y_offset - 200f), new Vector2(60f, 30f), Translate("Always backup"));
             OpLabel radioOptionLabelThree = new OpLabel(new Vector2(x_left_align + 60f, y_offset - 240f), new Vector2(60f, 30f), Translate("Never backup"));
+            */
 
             OpSimpleButton backupCreateButton = new OpSimpleButton(new Vector2(x_left_align + 20f, y_offset - 300f), new Vector2(160f, 30f), Translate("CREATE BACKUP"))
             {
@@ -68,10 +76,12 @@ namespace SaveManager.Interface
             tab.AddItems(new UIelement[]
             {
                 tabHeader,
-                radioOptionHeaderLabel,
+                enableVersionSavesToggle,
+                enableVersionSavesLabel,
+                /*radioOptionHeaderLabel,
                 radioOptionLabelOne,
                 radioOptionLabelTwo,
-                radioOptionLabelThree,
+                radioOptionLabelThree,*/
                 backupCreateButton,
             });
         }

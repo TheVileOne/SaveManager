@@ -53,9 +53,9 @@ namespace SaveManager
                 return;
             }
 
-            BackupFrequency backupFrequency = (BackupFrequency)SaveManager.Config.GetValue(nameof(SaveManager.Config.cfgBackupFrequency), 0);
+            //BackupFrequency backupFrequency = (BackupFrequency)SaveManager.Config.GetValue(nameof(SaveManager.Config.cfgBackupFrequency), 0);
 
-            Logger.LogInfo(backupFrequency);
+            //Logger.LogInfo(backupFrequency);
 
             try
             {
