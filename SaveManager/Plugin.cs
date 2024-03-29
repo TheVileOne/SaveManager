@@ -82,11 +82,11 @@ namespace SaveManager
             {
                 Directory.CreateDirectory(BackupPath); //Create in case it doesn't exist
 
+                string lastVersionFilePath = Path.Combine(Application.persistentDataPath, "LastGameVersion.txt");
+
                 if (SaveManager.Config.PerVersionSaving)
                 {
                     FileInfoResult result = CollectFileInfo();
-
-                    string lastVersionFilePath = Path.Combine(Application.persistentDataPath, "LastGameVersion.txt");
 
                     BackupSuccessCheckPath = Path.Combine(Application.persistentDataPath, "savemanager-check.txt");
 
@@ -152,6 +152,11 @@ namespace SaveManager
 
                     if (result.CurrentVersion != result.LastVersion || !File.Exists(lastVersionFilePath))
                         createVersionFile(result.CurrentVersion);
+                }
+                else
+                {
+                    //To be safe, this file shouldn't be allowed to contain a stale version while per version saves is disabled
+                    FileSystemUtils.SafeDeleteFile(lastVersionFilePath);
                 }
             }
             catch (Exception ex)
