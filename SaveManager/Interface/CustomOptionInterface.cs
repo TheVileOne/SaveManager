@@ -104,7 +104,14 @@ namespace SaveManager.Interface
 
         private void BackupRestoreButton_OnClick(UIfocusable trigger)
         {
-            throw new System.NotImplementedException();
+            Plugin.Logger.LogInfo("Restoring latest backup");
+
+            string mostRecentBackup = Helpers.SaveUtils.GetRecentBackupPath();
+
+            if (mostRecentBackup != null)
+                Helpers.SaveUtils.RestoreFromBackup(mostRecentBackup);
+            else
+                Plugin.Logger.LogInfo("Nothing to restore");
         }
 
         private void BackupCreateButton_OnClick(UIfocusable trigger)
