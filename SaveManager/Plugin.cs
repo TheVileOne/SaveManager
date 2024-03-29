@@ -81,74 +81,77 @@ namespace SaveManager
             {
                 Directory.CreateDirectory(BackupPath); //Create in case it doesn't exist
 
-                FileInfoResult result = CollectFileInfo();
-
-                string lastVersionFilePath = Path.Combine(Application.persistentDataPath, "LastGameVersion.txt");
-
-                BackupSuccessCheckPath = Path.Combine(Application.persistentDataPath, "savemanager-check.txt");
-
-                if (!File.Exists(BackupSuccessCheckPath)) //Create a file to let us know if save data is backed up when Rain World shuts down
+                if (SaveManager.Config.PerVersionSaving)
                 {
-                    //This directory stores save files that will be replaced by the mod 
-                    BackupOverwritePath = Path.Combine(result.CurrentVersionPath, BACKUP_OVERWRITE_FOLDER_NAME);
-                    File.Create(BackupSuccessCheckPath);
+                    FileInfoResult result = CollectFileInfo();
 
-                    //Check for save files specific to the current game version
-                    if (!Helpers.SaveUtils.ContainsSaveFiles(result.CurrentVersionPath))
+                    string lastVersionFilePath = Path.Combine(Application.persistentDataPath, "LastGameVersion.txt");
+
+                    BackupSuccessCheckPath = Path.Combine(Application.persistentDataPath, "savemanager-check.txt");
+
+                    if (!File.Exists(BackupSuccessCheckPath)) //Create a file to let us know if save data is backed up when Rain World shuts down
                     {
-                        //Creates copy of current save files in version-specific folder
-                        BackupSaves(result.CurrentVersionPath);
+                        //This directory stores save files that will be replaced by the mod 
+                        BackupOverwritePath = Path.Combine(result.CurrentVersionPath, BACKUP_OVERWRITE_FOLDER_NAME);
+                        File.Create(BackupSuccessCheckPath);
+
+                        //Check for save files specific to the current game version
+                        if (!Helpers.SaveUtils.ContainsSaveFiles(result.CurrentVersionPath))
+                        {
+                            //Creates copy of current save files in version-specific folder
+                            BackupSaves(result.CurrentVersionPath);
+                        }
+                        else
+                        {
+                            //Replaces current save files with save files from version-specific folder
+                            RestoreFromBackup(result.CurrentVersionPath);
+                        }
+
+                        //When there is a version mismatch, presume that strays are from the past version, and not the current one
+                        ManageStrayBackups(result.CurrentVersion != result.LastVersion ?
+                            result.LastVersionPath : result.CurrentVersionPath);
                     }
                     else
                     {
-                        //Replaces current save files with save files from version-specific folder
-                        RestoreFromBackup(result.CurrentVersionPath);
+                        Logger.LogWarning("Save data backup was unsuccessful on game exit. Backing up current saves.");
+
+                        //Hopefully this never triggers, but if it does, the save files on old patch builds cannot be salvaged due to
+                        //a save bug caused by format compatibilities with newer versions. This logic is fine if the version is unchanged.
+                        if (result.CurrentVersion == result.LastVersion || !result.CurrentVersion.StartsWith("1.9.1"))
+                        {
+                            BackupOverwritePath = Path.Combine(result.LastVersionPath, BACKUP_OVERWRITE_FOLDER_NAME);
+                            BackupSaves(result.LastVersionPath);
+                        }
                     }
 
-                    //When there is a version mismatch, presume that strays are from the past version, and not the current one
-                    ManageStrayBackups(result.CurrentVersion != result.LastVersion ?
-                        result.LastVersionPath : result.CurrentVersionPath);
-                }
-                else
-                {
-                    Logger.LogWarning("Save data backup was unsuccessful on game exit. Backing up current saves.");
-
-                    //Hopefully this never triggers, but if it does, the save files on old patch builds cannot be salvaged due to
-                    //a save bug caused by format compatibilities with newer versions. This logic is fine if the version is unchanged.
-                    if (result.CurrentVersion == result.LastVersion || !result.CurrentVersion.StartsWith("1.9.1"))
+                    /*
+                    //Old logic
+                    if (result.CurrentVersion == result.LastVersion)
                     {
-                        BackupOverwritePath = Path.Combine(result.LastVersionPath, BACKUP_OVERWRITE_FOLDER_NAME);
-                        BackupSaves(result.LastVersionPath);
+                        //Handle situation where the version hasn't changed since the last time the mod was enabled
+                        if (backupFrequency == BackupFrequency.Always || !File.Exists(result.LastVersionPath))
+                            BackupSaves(result.CurrentVersionPath);
+                        ManageStrayBackups(result.CurrentVersionPath);
                     }
-                }
-
-                /*
-                //Old logic
-                if (result.CurrentVersion == result.LastVersion)
-                {
-                    //Handle situation where the version hasn't changed since the last time the mod was enabled
-                    if (backupFrequency == BackupFrequency.Always || !File.Exists(result.LastVersionPath))
-                        BackupSaves(result.CurrentVersionPath);
-                    ManageStrayBackups(result.CurrentVersionPath);
-                }
-                else
-                {
-                    //Handle situations where the version has changed since the last time the mod was enabled
-                    if (backupFrequency != BackupFrequency.Never)
+                    else
                     {
-                        //Only newer versions support LastVersion backups. Older versions overwrite saves before any mod can activate
-                        bool allowBackup = result.CurrentVersion.StartsWith("1.9.1") || result.CurrentVersion.StartsWith("2");
+                        //Handle situations where the version has changed since the last time the mod was enabled
+                        if (backupFrequency != BackupFrequency.Never)
+                        {
+                            //Only newer versions support LastVersion backups. Older versions overwrite saves before any mod can activate
+                            bool allowBackup = result.CurrentVersion.StartsWith("1.9.1") || result.CurrentVersion.StartsWith("2");
 
-                        if (allowBackup)
-                            BackupSaves(result.LastVersionPath); //Current save files should be stored in the last detected version backup folder
-                        RestoreFromBackup(result.CurrentVersionPath);
+                            if (allowBackup)
+                                BackupSaves(result.LastVersionPath); //Current save files should be stored in the last detected version backup folder
+                            RestoreFromBackup(result.CurrentVersionPath);
+                        }
+                        ManageStrayBackups(result.LastVersionPath);
                     }
-                    ManageStrayBackups(result.LastVersionPath);
-                }
-                */
+                    */
 
-                if (result.CurrentVersion != result.LastVersion || !File.Exists(lastVersionFilePath))
-                    createVersionFile(result.CurrentVersion);
+                    if (result.CurrentVersion != result.LastVersion || !File.Exists(lastVersionFilePath))
+                        createVersionFile(result.CurrentVersion);
+                }
             }
             catch (Exception ex)
             {

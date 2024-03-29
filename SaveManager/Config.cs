@@ -35,6 +35,16 @@ namespace SaveManager
         public static Configurable<bool> cfgInheritVersionSaves;
         //public static Configurable<int> cfgBackupFrequency;
 
+        public static bool PerVersionSaving
+        {
+            get
+            {
+                if (SafeToLoad)
+                    return cfgEnablePerVersionSaves.Value;
+                return GetValue(nameof(cfgEnablePerVersionSaves), false);
+            }
+        }
+
         public static void Load()
         {
             ConfigDataRaw = ConfigReader.ReadFile(Plugin.ConfigFilePath);
