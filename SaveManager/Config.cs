@@ -46,7 +46,7 @@ namespace SaveManager
             ConfigData.configurables.Clear();
 
             //Define config options
-            cfgEnablePerVersionSaves = ConfigData.Bind(nameof(cfgEnablePerVersionSaves), true,
+            cfgEnablePerVersionSaves = ConfigData.Bind(nameof(cfgEnablePerVersionSaves), false,
                 new ConfigInfo("Save file data will be stored for each game version", new object[]
             {
                 "Store save data per game version"
