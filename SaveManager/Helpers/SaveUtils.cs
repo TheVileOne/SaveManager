@@ -45,9 +45,12 @@ namespace SaveManager.Helpers
             {
                 Directory.CreateDirectory(Plugin.BackupOverwritePath);
 
+                short errorCodeHandle = -1;
                 foreach (string file in SaveFiles) //Copy each save file into the specified path
-                    CopySaveFile(file, backupPath, false);
+                    CopySaveFile(file, backupPath, false, ref errorCodeHandle);
 
+                if (errorCodeHandle != -1)
+                    handleError(errorCodeHandle);
                 return true;
             }
             catch (Exception ex)
@@ -64,9 +67,12 @@ namespace SaveManager.Helpers
             {
                 Directory.CreateDirectory(Plugin.BackupOverwritePath);
 
+                short errorCodeHandle = -1;
                 foreach (string file in SaveFiles) //Copy each save file into the specified path
-                    CopySaveFile(file, backupPath, true);
+                    CopySaveFile(file, backupPath, true, ref errorCodeHandle);
 
+                if (errorCodeHandle != -1)
+                    handleError(errorCodeHandle);
                 return true;
             }
             catch (Exception ex)
@@ -83,7 +89,7 @@ namespace SaveManager.Helpers
         /// <param name="filename">The file to copy</param>
         /// <param name="targetPath">The path where a file is copied to, or copied from</param>
         /// <param name="copyingFromTargetPath">Identifies the source location of the file</param>
-        public static void CopySaveFile(string filename, string targetPath, bool copyingFromTargetPath)
+        public static void CopySaveFile(string filename, string targetPath, bool copyingFromTargetPath, ref short copyErrorCode)
         {
             string sourcePath, destPath;
 
@@ -100,11 +106,48 @@ namespace SaveManager.Helpers
 
             //Make sure that any existing files get transferred to the last-overwrite directory before getting copied over
             if (File.Exists(destPath))
-                FileSystemUtils.SafeMoveFile(destPath, Path.Combine(Plugin.BackupOverwritePath, filename));
+            {
+                if (!FileSystemUtils.SafeMoveFile(destPath, Path.Combine(Plugin.BackupOverwritePath, filename)))
+                    handleError(1, ref copyErrorCode);
+            }
 
             //Copy file to destination
             if (File.Exists(sourcePath))
-                FileSystemUtils.SafeCopyFile(sourcePath, destPath);
+            {
+                if (!FileSystemUtils.SafeCopyFile(sourcePath, destPath))
+                    handleError(0, ref copyErrorCode);
+            }
+
+            void handleError(short errorCode, ref short errorCodeHandle)
+            {
+                if (errorCodeHandle == -1 || errorCodeHandle == errorCode)
+                {
+                    errorCodeHandle = errorCode;
+                    return;
+                }
+
+                /*
+                 * Code 0: Copy to target failure
+                 * Code 1: Move to overwrite folder failure
+                 * Code 2: Mixed failures
+                 */
+                if ((errorCode == 0 && errorCodeHandle == 1) || (errorCode == 1 && errorCodeHandle == 0))
+                    errorCodeHandle = 2;
+            }
         }
+
+        private static void handleError(int errorCode)
+        {
+            string errorMessage = "Unknown file error occurred";
+            if (errorCode == 0)
+                errorMessage = "One or more save files failed to copy";
+            else if (errorCode == 1)
+                errorMessage = "One or more save files failed to move to the overwrite backup directory";
+            else if (errorCode == 2)
+                errorMessage = "Multiple issues occurred while copying save files";
+
+            Plugin.Logger.LogWarning(errorMessage);
+        }
+
     }
 }
