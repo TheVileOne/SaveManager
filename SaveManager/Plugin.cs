@@ -70,6 +70,7 @@ namespace SaveManager
             if (!Directory.Exists(Application.persistentDataPath))
             {
                 Logger.LogWarning("Could not locate persistent data path");
+                orig(self);
                 return;
             }
 
