@@ -265,6 +265,30 @@ namespace SaveManager.Helpers
             return mostRecentBackupDirectory;
         }
 
+        /// <summary>
+        /// Renames directory specified by targetPath to match timestamp format, and attempts to move it to backup directory
+        /// </summary>
+        /// <param name="targetPath">The directory path to convert</param>
+        public static void ConvertToBackupFormat(string targetPath)
+        {
+            double totalSeconds = (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
+
+            string backupName = ((long)totalSeconds) + '_' + DateTime.Now.ToString("yyyy-MM-dd_HH-mm");
+            string backupTargetPath = Plugin.BackupPath;
+
+            //Use the version directory when it exists, and  per version saving is enabled 
+            if (Config.PerVersionSaving)
+            {
+                string perVersionBackupTargetPath = Path.Combine(backupTargetPath, Plugin.GameVersionString);
+
+                //When the logic is enabled on startup, directory is guaranteed to exist, not the case if set through Remix menu.
+                if (Plugin.VersionSavingEnabledOnStartUp || Directory.Exists(perVersionBackupTargetPath))
+                    backupTargetPath = perVersionBackupTargetPath;
+            }
+
+            FileSystemUtils.SafeMoveDirectory(targetPath, Path.Combine(backupTargetPath, backupName), SearchOption.AllDirectories);
+        }
+
         private static void handleError(int errorCode)
         {
             string errorMessage = "Unknown file error occurred";

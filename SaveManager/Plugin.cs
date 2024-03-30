@@ -57,7 +57,7 @@ namespace SaveManager
         /// <summary>
         /// A flag that indicates that version saving was always enabled as compared to enabled via the Remix menu
         /// </summary>
-        private static bool versionSavingEnabledOnStartUp;
+        public static bool VersionSavingEnabledOnStartUp;
 
         public void Awake()
         {
@@ -95,7 +95,7 @@ namespace SaveManager
 
                 if (SaveManager.Config.PerVersionSaving)
                 {
-                    versionSavingEnabledOnStartUp = true;
+                    VersionSavingEnabledOnStartUp = true;
 
                     FileInfoResult result = CollectFileInfo();
 
@@ -250,7 +250,17 @@ namespace SaveManager
 
         private void RainWorld_OnDestroy(On.RainWorld.orig_OnDestroy orig, RainWorld self)
         {
-            if (BackupSuccessCheckPath != null || (SaveManager.Config.PerVersionSaving && !versionSavingEnabledOnStartUp)) //Mod logic hasn't been applied if this is null
+            string baseOverwritePath = Path.Combine(BackupPath, BACKUP_OVERWRITE_FOLDER_NAME);
+
+            //Base overwrite directory is not used as frequently as its per version equivalent. It should be fine to directly
+            //convert it to a standard backup folder name format. This ensures that the mod only has to handle one overwrite
+            //path at any one time.
+            if (BackupUtils.ContainsSaveFiles(baseOverwritePath))
+                BackupUtils.ConvertToBackupFormat(baseOverwritePath);
+            else
+                FileSystemUtils.SafeDeleteDirectory(baseOverwritePath);
+
+            if (BackupSuccessCheckPath != null || (SaveManager.Config.PerVersionSaving && !VersionSavingEnabledOnStartUp)) //Mod logic hasn't been applied if this is null
             {
                 //Apply any progress made to existing saves, or new saves while the game has been running to the version-specific backup
                 BackupSaves(Path.Combine(BackupPath, GameVersionString));
