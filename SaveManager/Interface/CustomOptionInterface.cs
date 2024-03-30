@@ -1,5 +1,6 @@
 ﻿using Menu.Remix.MixedUI;
 using SaveManager.Helpers;
+using System.IO;
 using Vector2 = UnityEngine.Vector2;
 
 namespace SaveManager.Interface
@@ -111,7 +112,7 @@ namespace SaveManager.Interface
 
             if (mostRecentBackup != null)
             {
-                Plugin.Logger.LogInfo("Backup found: " + mostRecentBackup);
+                Plugin.Logger.LogInfo("Backup found: " + PathUtils.GetRelativePath(mostRecentBackup, 3));
                 BackupUtils.RestoreFromBackup(mostRecentBackup);
                 Plugin.Logger.LogInfo("Process complete");
             }

@@ -32,6 +32,43 @@ namespace SaveManager.Helpers
             return sepIndex != -1 ? path.Substring(sepIndex + 1) : path;
         }
 
+        public static string GetRelativePath(string path, int dirsWanted, bool normalizePath = false)
+        {
+            if (normalizePath)
+                path = NormalizePath(path);
+
+            if (string.IsNullOrEmpty(path))
+                return path;
+
+            bool endOfPath = false;
+            bool relativePathIndexFound = false;
+            bool firstPathIndexFound = false;
+
+            int charIndex = path.Length - 1;
+            while (!endOfPath && !relativePathIndexFound)
+            {
+                if (path[charIndex] == Path.AltDirectorySeparatorChar)
+                {
+                    //The filename does not count as a directory
+                    if (!firstPathIndexFound && Path.HasExtension(path))
+                    {
+                        firstPathIndexFound = true;
+                        continue;
+                    }
+                    dirsWanted--;
+                    relativePathIndexFound = dirsWanted == 0;
+                }
+
+                charIndex--;
+                endOfPath = charIndex < 0;
+            }
+
+            if (endOfPath)
+                return path; //The whole path was checked
+
+            return path.Substring(charIndex + 2); //charIndex is always one less than the index here, and the separator is excluded
+        }
+
         public static string Combine(params string[] pathSegments)
         {
             return NormalizePath(Path.Combine(pathSegments));
