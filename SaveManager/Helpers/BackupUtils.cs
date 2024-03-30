@@ -60,7 +60,12 @@ namespace SaveManager.Helpers
 
                 //Backup process shouldn't be targeting this directory directly. It should be okay to discard temp storage
                 if (targetingOverwritePath)
-                    FileSystemUtils.SafeDeleteDirectory(backupPath);
+                {
+                    if (PathUtils.GetDirectoryName(overwritePath) != "temp")
+                        throw new InvalidOperationException("This operation only accepts the temp directory");
+
+                    FileSystemUtils.SafeDeleteDirectory(overwritePath);
+                }
 
                 return true;
             }

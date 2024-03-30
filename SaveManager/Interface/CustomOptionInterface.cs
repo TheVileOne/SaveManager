@@ -110,7 +110,11 @@ namespace SaveManager.Interface
             string mostRecentBackup = BackupUtils.GetRecentBackupPath();
 
             if (mostRecentBackup != null)
+            {
+                Plugin.Logger.LogInfo("Backup found: " + mostRecentBackup);
                 BackupUtils.RestoreFromBackup(mostRecentBackup);
+                Plugin.Logger.LogInfo("Process complete");
+            }
             else
                 Plugin.Logger.LogInfo("Nothing to restore");
         }
