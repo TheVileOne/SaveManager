@@ -1,4 +1,5 @@
 ﻿using Menu.Remix.MixedUI;
+using SaveManager.Helpers;
 using Vector2 = UnityEngine.Vector2;
 
 namespace SaveManager.Interface
@@ -106,10 +107,10 @@ namespace SaveManager.Interface
         {
             Plugin.Logger.LogInfo("Restoring latest backup");
 
-            string mostRecentBackup = Helpers.SaveUtils.GetRecentBackupPath();
+            string mostRecentBackup = BackupUtils.GetRecentBackupPath();
 
             if (mostRecentBackup != null)
-                Helpers.SaveUtils.RestoreFromBackup(mostRecentBackup);
+                BackupUtils.RestoreFromBackup(mostRecentBackup);
             else
                 Plugin.Logger.LogInfo("Nothing to restore");
         }
@@ -118,7 +119,7 @@ namespace SaveManager.Interface
         {
             Plugin.Logger.LogInfo("Creating backups");
 
-            Helpers.SaveUtils.BackupsCreatedThisSession = true;
+            BackupUtils.BackupsCreatedThisSession = true;
             RWCustom.Custom.rainWorld.progression.CreateCopyOfSaves();
         }
     }

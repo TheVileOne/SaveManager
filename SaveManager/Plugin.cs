@@ -108,7 +108,7 @@ namespace SaveManager
                         File.Create(BackupSuccessCheckPath);
 
                         //Check for save files specific to the current game version
-                        if (!Helpers.SaveUtils.ContainsSaveFiles(result.CurrentVersionPath))
+                        if (!BackupUtils.ContainsSaveFiles(result.CurrentVersionPath))
                         {
                             //Creates copy of current save files in version-specific folder
                             BackupSaves(result.CurrentVersionPath);
@@ -281,6 +281,7 @@ namespace SaveManager
         {
             string currentPath = Path.Combine(Application.persistentDataPath, sourceName);
             string destPath = Path.Combine(destinationDirectory, sourceName);
+
             if (File.Exists(destPath) && File.Exists(currentPath)) //Original code doesn't allow file overwrites and breaks
                 FileSystemUtils.SafeCopyFile(destPath, currentPath);
             else
@@ -376,7 +377,7 @@ namespace SaveManager
         public bool BackupSaves(string backupPath)
         {
             Logger.LogInfo("Backing up save files");
-            return Helpers.SaveUtils.BackupSaves(backupPath);
+            return BackupUtils.BackupSaves(backupPath);
         }
 
         /// <summary>
@@ -390,7 +391,7 @@ namespace SaveManager
             if (FileSystemUtils.HasFiles(backupPath))
             {
                 Logger.LogInfo("Restoring save files");
-                return Helpers.SaveUtils.RestoreFromBackup(backupPath);
+                return BackupUtils.RestoreFromBackup(backupPath);
             }
 
             Logger.LogInfo("No save data available to restore");

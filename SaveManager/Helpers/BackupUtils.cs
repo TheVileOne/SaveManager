@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SaveManager.Helpers
 {
-    public static class SaveUtils
+    public static class BackupUtils
     {
         public static string[] SaveFiles =
         {
@@ -78,7 +78,6 @@ namespace SaveManager.Helpers
             {
                 //There will be issues when transferring files directly to, or from this directory
                 bool targetingOverwritePath = backupPath == Plugin.BackupOverwritePath;
-
                 string overwritePath = createOverwriteDirectory(targetingOverwritePath);
 
                 short errorCodeHandle = -1;
@@ -162,7 +161,7 @@ namespace SaveManager.Helpers
                     handleError(0, ref copyErrorCode);
             }
 
-            void handleError(short errorCode, ref short errorCodeHandle)
+            static void handleError(short errorCode, ref short errorCodeHandle)
             {
                 if (errorCodeHandle == -1 || errorCodeHandle == errorCode)
                 {
