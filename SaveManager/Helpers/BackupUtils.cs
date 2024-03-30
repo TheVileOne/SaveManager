@@ -89,7 +89,7 @@ namespace SaveManager.Helpers
 
                 if (targetingOverwritePath)
                 {
-                    if (Path.GetDirectoryName(overwritePath) != "temp")
+                    if (PathUtils.GetDirectoryName(overwritePath) != "temp")
                         throw new InvalidOperationException("This operation only accepts the temp directory");
 
                     //Move all files from the temp directory back into the actual overwrite directory
@@ -194,8 +194,8 @@ namespace SaveManager.Helpers
                         //See GetRecentBackupPath(string) for explanation of this code
                         long creationDateInSeconds, creationDateInSecondsFromBase;
 
-                        string directoryName = Path.GetDirectoryName(mostRecentBackupDirectory);
-                        string directoryNameFromBase = Path.GetDirectoryName(mostRecentBackupDirectoryFromBase);
+                        string directoryName = PathUtils.GetDirectoryName(mostRecentBackupDirectory);
+                        string directoryNameFromBase = PathUtils.GetDirectoryName(mostRecentBackupDirectoryFromBase);
 
                         int sepIndex = directoryName.IndexOf('_'); //We need the time in seconds
                         creationDateInSeconds = long.Parse(directoryName.Substring(0, sepIndex));
@@ -231,7 +231,7 @@ namespace SaveManager.Helpers
             long mostRecentCreationDateInSeconds = 0;
             foreach (string dir in backupDirs)
             {
-                string directoryName = Path.GetDirectoryName(dir);
+                string directoryName = PathUtils.GetDirectoryName(dir);
 
                 if (directoryName != Plugin.BACKUP_OVERWRITE_FOLDER_NAME)
                 {
