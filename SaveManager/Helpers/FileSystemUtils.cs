@@ -224,7 +224,7 @@ namespace SaveManager.Helpers
             {
                 try
                 {
-                    string targetFilePath = Path.Combine(destPath, file.Name);
+                    string targetFilePath = PathUtils.Combine(destPath, file.Name);
                     file.CopyTo(targetFilePath, true);
                 }
                 catch (Exception ex)
@@ -246,7 +246,7 @@ namespace SaveManager.Helpers
             {
                 foreach (DirectoryInfo subDir in dirs)
                 {
-                    string newDestinationDir = Path.Combine(destPath, subDir.Name);
+                    string newDestinationDir = PathUtils.Combine(destPath, subDir.Name);
                     CopyDirectory(subDir.FullName, newDestinationDir, searchOption, throwOnFail);
                 }
             }

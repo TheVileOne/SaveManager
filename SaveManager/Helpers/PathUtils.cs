@@ -31,5 +31,18 @@ namespace SaveManager.Helpers
             //If one exists, return the data to the right of it, or the entire path string otherwise
             return sepIndex != -1 ? path.Substring(sepIndex + 1) : path;
         }
+
+        public static string Combine(params string[] pathSegments)
+        {
+            return NormalizePath(Path.Combine(pathSegments));
+        }
+
+        /// <summary>
+        /// Formats a path to a consistent format
+        /// </summary>
+        public static string NormalizePath(string path)
+        {
+            return path?.Replace('\\', '/');
+        }
     }
 }

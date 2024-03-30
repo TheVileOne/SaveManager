@@ -36,8 +36,8 @@ namespace SaveManager
                 if (_overwritePath == null)
                 {
                     string basePath = SaveManager.Config.PerVersionSaving ?
-                           Path.Combine(BackupPath, GameVersionString) : BackupPath;
-                    return Path.Combine(basePath, BACKUP_OVERWRITE_FOLDER_NAME);
+                           PathUtils.Combine(BackupPath, GameVersionString) : BackupPath;
+                    return PathUtils.Combine(basePath, BACKUP_OVERWRITE_FOLDER_NAME);
                 }
                 return _overwritePath;
             }
@@ -62,8 +62,8 @@ namespace SaveManager
         public void Awake()
         {
             Logger = base.Logger;
-            BackupPath = Path.Combine(Application.persistentDataPath, "backup");
-            ConfigFilePath = Path.Combine(Application.persistentDataPath, "ModConfigs", PLUGIN_GUID + ".txt");
+            BackupPath = PathUtils.Combine(Application.persistentDataPath, "backup");
+            ConfigFilePath = PathUtils.Combine(Application.persistentDataPath, "ModConfigs", PLUGIN_GUID + ".txt");
 
             SaveManager.Config.Load();
 
@@ -91,7 +91,7 @@ namespace SaveManager
             {
                 Directory.CreateDirectory(BackupPath); //Create in case it doesn't exist
 
-                string lastVersionFilePath = Path.Combine(Application.persistentDataPath, "LastGameVersion.txt");
+                string lastVersionFilePath = PathUtils.Combine(Application.persistentDataPath, "LastGameVersion.txt");
 
                 if (SaveManager.Config.PerVersionSaving)
                 {
@@ -99,12 +99,12 @@ namespace SaveManager
 
                     FileInfoResult result = CollectFileInfo();
 
-                    BackupSuccessCheckPath = Path.Combine(Application.persistentDataPath, "savemanager-check.txt");
+                    BackupSuccessCheckPath = PathUtils.Combine(Application.persistentDataPath, "savemanager-check.txt");
 
                     if (!File.Exists(BackupSuccessCheckPath)) //Create a file to let us know if save data is backed up when Rain World shuts down
                     {
                         //This directory stores save files that will be replaced by the mod 
-                        BackupOverwritePath = Path.Combine(result.CurrentVersionPath, BACKUP_OVERWRITE_FOLDER_NAME);
+                        BackupOverwritePath = PathUtils.Combine(result.CurrentVersionPath, BACKUP_OVERWRITE_FOLDER_NAME);
                         File.Create(BackupSuccessCheckPath);
 
                         //Check for save files specific to the current game version
@@ -131,7 +131,7 @@ namespace SaveManager
                         //a save bug caused by format compatibilities with newer versions. This logic is fine if the version is unchanged.
                         if (result.CurrentVersion == result.LastVersion || (result.CurrentVersion.StartsWith("1.9") && !result.CurrentVersion.StartsWith("1.9.0")))
                         {
-                            BackupOverwritePath = Path.Combine(result.LastVersionPath, BACKUP_OVERWRITE_FOLDER_NAME);
+                            BackupOverwritePath = PathUtils.Combine(result.LastVersionPath, BACKUP_OVERWRITE_FOLDER_NAME);
                             BackupSaves(result.LastVersionPath);
                         }
                     }
@@ -166,7 +166,7 @@ namespace SaveManager
                 }
                 else
                 {
-                    BackupOverwritePath = Path.Combine(BackupPath, BACKUP_OVERWRITE_FOLDER_NAME);
+                    BackupOverwritePath = PathUtils.Combine(BackupPath, BACKUP_OVERWRITE_FOLDER_NAME);
 
                     //To be safe, this file shouldn't be allowed to contain a stale version while per version saves is disabled
                     FileSystemUtils.SafeDeleteFile(lastVersionFilePath);
@@ -194,7 +194,7 @@ namespace SaveManager
                 //Make sure that the version .txt file matches the current version
                 try
                 {
-                    writePath = Path.Combine(Application.persistentDataPath, filePath);
+                    writePath = PathUtils.Combine(Application.persistentDataPath, filePath);
 
                     File.WriteAllText(writePath, versionText);
                     writeSuccess = true;
@@ -250,7 +250,7 @@ namespace SaveManager
 
         private void RainWorld_OnDestroy(On.RainWorld.orig_OnDestroy orig, RainWorld self)
         {
-            string baseOverwritePath = Path.Combine(BackupPath, BACKUP_OVERWRITE_FOLDER_NAME);
+            string baseOverwritePath = PathUtils.Combine(BackupPath, BACKUP_OVERWRITE_FOLDER_NAME);
 
             //Base overwrite directory is not used as frequently as its per version equivalent. It should be fine to directly
             //convert it to a standard backup folder name format. This ensures that the mod only has to handle one overwrite
@@ -263,7 +263,7 @@ namespace SaveManager
             if (BackupSuccessCheckPath != null || (SaveManager.Config.PerVersionSaving && !VersionSavingEnabledOnStartUp)) //Mod logic hasn't been applied if this is null
             {
                 //Apply any progress made to existing saves, or new saves while the game has been running to the version-specific backup
-                BackupSaves(Path.Combine(BackupPath, GameVersionString));
+                BackupSaves(PathUtils.Combine(BackupPath, GameVersionString));
                 FileSystemUtils.SafeDeleteFile(BackupSuccessCheckPath); //Remove file created by the mod when Rain World starts
             }
             orig(self);
@@ -281,7 +281,7 @@ namespace SaveManager
 
         private string getRelativeBackupPath(string backupDir)
         {
-            return SaveManager.Config.PerVersionSaving ? Path.Combine(backupDir, GameVersionString) : backupDir;
+            return SaveManager.Config.PerVersionSaving ? PathUtils.Combine(backupDir, GameVersionString) : backupDir;
         }
 
         /// <summary>
@@ -289,8 +289,8 @@ namespace SaveManager
         /// </summary>
         private void PlayerProgression_CopySaveFile(On.PlayerProgression.orig_CopySaveFile orig, PlayerProgression self, string sourceName, string destinationDirectory)
         {
-            string currentPath = Path.Combine(Application.persistentDataPath, sourceName);
-            string destPath = Path.Combine(destinationDirectory, sourceName);
+            string currentPath = PathUtils.Combine(Application.persistentDataPath, sourceName);
+            string destPath = PathUtils.Combine(destinationDirectory, sourceName);
 
             if (File.Exists(destPath) && File.Exists(currentPath)) //Original code doesn't allow file overwrites and breaks
                 FileSystemUtils.SafeCopyFile(destPath, currentPath);
@@ -315,9 +315,9 @@ namespace SaveManager
             string saveDataPath = BackupPath;
 
             result.CurrentVersion = GameVersionString;
-            result.CurrentVersionPath = Path.Combine(saveDataPath, result.CurrentVersion);
+            result.CurrentVersionPath = PathUtils.Combine(saveDataPath, result.CurrentVersion);
 
-            string versionCheckPath = Path.Combine(Application.persistentDataPath, "LastGameVersion.txt");
+            string versionCheckPath = PathUtils.Combine(Application.persistentDataPath, "LastGameVersion.txt");
 
             //Retrieve the last mod recorded game version from Rain World's persistent data path
             if (File.Exists(versionCheckPath))
@@ -330,7 +330,7 @@ namespace SaveManager
             }
 
             if (!string.IsNullOrEmpty(result.LastVersion))
-                result.LastVersionPath = Path.Combine(saveDataPath, result.LastVersion);
+                result.LastVersionPath = PathUtils.Combine(saveDataPath, result.LastVersion);
             else
             {
                 result.LastVersion = result.CurrentVersion;
@@ -368,8 +368,8 @@ namespace SaveManager
                 foreach (string dir in strayBackupDirs)
                 {
                     //Move the current backup directory within a version-specific backup directory
-                    string currentPath = Path.Combine(BackupPath, dir);
-                    string destPath = Path.Combine(backupPath, dir);
+                    string currentPath = PathUtils.Combine(BackupPath, dir);
+                    string destPath = PathUtils.Combine(backupPath, dir);
 
                     FileSystemUtils.SafeMoveDirectory(currentPath, destPath, SearchOption.AllDirectories);
                 }

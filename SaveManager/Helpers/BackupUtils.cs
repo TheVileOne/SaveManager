@@ -117,7 +117,7 @@ namespace SaveManager.Helpers
             {
                 Plugin.Logger.LogInfo("Creating temp directory");
 
-                string overwritePath = Path.Combine(Plugin.BackupPath, "temp");
+                string overwritePath = PathUtils.Combine(Plugin.BackupPath, "temp");
 
                 Directory.CreateDirectory(overwritePath);
                 return overwritePath;
@@ -137,19 +137,19 @@ namespace SaveManager.Helpers
 
             if (copyingFromTargetPath)
             {
-                sourcePath = Path.Combine(targetPath, filename);
-                destPath = Path.Combine(Application.persistentDataPath, filename);
+                sourcePath = PathUtils.Combine(targetPath, filename);
+                destPath = PathUtils.Combine(Application.persistentDataPath, filename);
             }
             else
             {
-                sourcePath = Path.Combine(Application.persistentDataPath, filename);
-                destPath = Path.Combine(targetPath, filename);
+                sourcePath = PathUtils.Combine(Application.persistentDataPath, filename);
+                destPath = PathUtils.Combine(targetPath, filename);
             }
 
             //Make sure that any existing files get transferred to the last-overwrite directory before getting copied over
             if (File.Exists(destPath))
             {
-                if (!FileSystemUtils.SafeMoveFile(destPath, Path.Combine(overwritePath, filename)))
+                if (!FileSystemUtils.SafeMoveFile(destPath, PathUtils.Combine(overwritePath, filename)))
                     handleError(1, ref copyErrorCode);
             }
 
@@ -184,7 +184,7 @@ namespace SaveManager.Helpers
             if (BackupsCreatedThisSession || !ContainsSaveFiles(Plugin.BackupOverwritePath))
             {
                 //Both of these paths may have valid backup directories such as if per version saving was toggled in the Remix menu
-                string mostRecentBackupDirectory = GetRecentBackupPath(Path.Combine(Plugin.BackupPath, Plugin.GameVersionString));
+                string mostRecentBackupDirectory = GetRecentBackupPath(PathUtils.Combine(Plugin.BackupPath, Plugin.GameVersionString));
                 string mostRecentBackupDirectoryFromBase = GetRecentBackupPath(Plugin.BackupPath);
 
                 if (mostRecentBackupDirectory != null)
@@ -278,14 +278,14 @@ namespace SaveManager.Helpers
             //Use the version directory when it exists, and  per version saving is enabled 
             if (Config.PerVersionSaving)
             {
-                string perVersionBackupTargetPath = Path.Combine(backupTargetPath, Plugin.GameVersionString);
+                string perVersionBackupTargetPath = PathUtils.Combine(backupTargetPath, Plugin.GameVersionString);
 
                 //When the logic is enabled on startup, directory is guaranteed to exist, not the case if set through Remix menu.
                 if (Plugin.VersionSavingEnabledOnStartUp || Directory.Exists(perVersionBackupTargetPath))
                     backupTargetPath = perVersionBackupTargetPath;
             }
 
-            FileSystemUtils.SafeMoveDirectory(targetPath, Path.Combine(backupTargetPath, backupName), SearchOption.AllDirectories);
+            FileSystemUtils.SafeMoveDirectory(targetPath, PathUtils.Combine(backupTargetPath, backupName), SearchOption.AllDirectories);
         }
 
         private static void handleError(int errorCode)
