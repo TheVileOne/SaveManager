@@ -91,7 +91,7 @@ namespace SaveManager.Helpers
                 {
                     //Move all files from the temp directory back into the actual overwrite directory
                     foreach (string filePath in Directory.GetFiles(overwritePath))
-                        FileSystemUtils.SafeMoveFile(filePath, Plugin.BackupOverwritePath);
+                        FileSystemUtils.SafeMoveFile(filePath, Path.Combine(Plugin.BackupOverwritePath, Path.GetFileName(filePath)));
 
                     //Delete temp directory when process is finished
                     FileSystemUtils.SafeDeleteDirectory(overwritePath);
