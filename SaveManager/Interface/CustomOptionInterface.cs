@@ -51,29 +51,6 @@ namespace SaveManager.Interface
             };
             OpLabel inheritVersionSavesLabel = new OpLabel(x_left_align + 60f, y_offset - 120f, Translate(Config.GetOptionLabel(Config.cfgInheritVersionSaves)));
 
-
-            /*
-            OpRadioButtonGroup radioOptions = new OpRadioButtonGroup(Config.cfgBackupFrequency);
-
-            tab.AddItems(radioOptions);
-
-            radioOptions.SetButtons(new OpRadioButton[]
-            {
-                new OpRadioButton(new Vector2(x_left_align + 160f, y_offset - 160f)),
-                new OpRadioButton(new Vector2(x_left_align + 160f, y_offset - 200f)),
-                new OpRadioButton(new Vector2(x_left_align + 160f, y_offset - 240f))
-            });
-
-            OpLabel radioOptionHeaderLabel = new OpLabel(new Vector2(x_left_align + 70f, y_offset - 120f), new Vector2(60f, 30f), Translate("BACKUP FREQUENCY"))
-            {
-                color = UnityEngine.Color.white
-            };
-
-            OpLabel radioOptionLabelOne = new OpLabel(new Vector2(x_left_align + 60f, y_offset - 160f), new Vector2(60f, 30f), Translate("When version changes"));
-            OpLabel radioOptionLabelTwo = new OpLabel(new Vector2(x_left_align + 60f, y_offset - 200f), new Vector2(60f, 30f), Translate("Always backup"));
-            OpLabel radioOptionLabelThree = new OpLabel(new Vector2(x_left_align + 60f, y_offset - 240f), new Vector2(60f, 30f), Translate("Never backup"));
-            */
-
             OpSimpleButton backupRestoreButton = new OpSimpleButton(new Vector2(x_left_align + 20f, y_offset - 170f), new Vector2(200f, 30f), Translate("RESTORE RECENT BACKUP"))
             {
                 description = Translate("Swaps current save game data with most recent save backup from file")
@@ -95,10 +72,6 @@ namespace SaveManager.Interface
                 enableVersionSavesLabel,
                 inheritVersionSavesToggle,
                 inheritVersionSavesLabel,
-                /*radioOptionHeaderLabel,
-                radioOptionLabelOne,
-                radioOptionLabelTwo,
-                radioOptionLabelThree,*/
                 backupRestoreButton,
                 backupCreateButton,
             });

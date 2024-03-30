@@ -33,7 +33,6 @@ namespace SaveManager
 
         public static Configurable<bool> cfgEnablePerVersionSaves;
         public static Configurable<bool> cfgInheritVersionSaves;
-        //public static Configurable<int> cfgBackupFrequency;
 
         public static bool PerVersionSaving
         {
@@ -66,7 +65,6 @@ namespace SaveManager
             {
                 "Inherit save data on game version change (if compatible)"
             }));
-            //cfgBackupFrequency = ConfigData.Bind(nameof(cfgBackupFrequency), 0, new ConfigAcceptableRange<int>(0, 2));
         }
 
         public static T GetValue<T>(string settingName, T expectedDefault) where T : IConvertible

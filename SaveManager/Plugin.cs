@@ -83,10 +83,6 @@ namespace SaveManager
                 return;
             }
 
-            //BackupFrequency backupFrequency = (BackupFrequency)SaveManager.Config.GetValue(nameof(SaveManager.Config.cfgBackupFrequency), 0);
-
-            //Logger.LogInfo(backupFrequency);
-
             try
             {
                 Directory.CreateDirectory(BackupPath); //Create in case it doesn't exist
@@ -135,31 +131,6 @@ namespace SaveManager
                             BackupSaves(result.LastVersionPath);
                         }
                     }
-
-                    /*
-                    //Old logic
-                    if (result.CurrentVersion == result.LastVersion)
-                    {
-                        //Handle situation where the version hasn't changed since the last time the mod was enabled
-                        if (backupFrequency == BackupFrequency.Always || !File.Exists(result.LastVersionPath))
-                            BackupSaves(result.CurrentVersionPath);
-                        ManageStrayBackups(result.CurrentVersionPath);
-                    }
-                    else
-                    {
-                        //Handle situations where the version has changed since the last time the mod was enabled
-                        if (backupFrequency != BackupFrequency.Never)
-                        {
-                            //Only newer versions support LastVersion backups. Older versions overwrite saves before any mod can activate
-                            bool allowBackup = result.CurrentVersion.StartsWith("1.9.1") || result.CurrentVersion.StartsWith("2");
-
-                            if (allowBackup)
-                                BackupSaves(result.LastVersionPath); //Current save files should be stored in the last detected version backup folder
-                            RestoreFromBackup(result.CurrentVersionPath);
-                        }
-                        ManageStrayBackups(result.LastVersionPath);
-                    }
-                    */
 
                     if (result.CurrentVersion != result.LastVersion || !File.Exists(lastVersionFilePath))
                         createVersionFile(result.CurrentVersion);
@@ -407,12 +378,5 @@ namespace SaveManager
             Logger.LogInfo("No save data available to restore");
             return false;
         }
-    }
-
-    public enum BackupFrequency
-    {
-        VersionChanged,
-        Always,
-        Never,
     }
 }
