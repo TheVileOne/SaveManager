@@ -185,14 +185,39 @@ namespace SaveManager.Helpers
             //Check that we should look for the typical timestamped backup folders instead of the overwrite directory
             if (BackupsCreatedThisSession || !ContainsSaveFiles(Plugin.BackupOverwritePath))
             {
+                //Both of these paths may have valid backup directories such as if per version saving was toggled in the Remix menu
                 string mostRecentBackupDirectory = GetRecentBackupPath(Path.Combine(Plugin.BackupPath, Plugin.GameVersionString));
+                string mostRecentBackupDirectoryFromBase = GetRecentBackupPath(Plugin.BackupPath);
 
-                //Handle situation where there are no directories found
-                if (mostRecentBackupDirectory == null)
+                if (mostRecentBackupDirectory != null)
+                {
+                    if (mostRecentBackupDirectoryFromBase != null)
+                    {
+                        //See GetRecentBackupPath(string) for explanation of this code
+                        long creationDateInSeconds, creationDateInSecondsFromBase;
+
+                        string directoryName = Path.GetDirectoryName(mostRecentBackupDirectory);
+                        string directoryNameFromBase = Path.GetDirectoryName(mostRecentBackupDirectoryFromBase);
+
+                        int sepIndex = directoryName.IndexOf('_'); //We need the time in seconds
+                        creationDateInSeconds = long.Parse(directoryName.Substring(0, sepIndex));
+
+                        sepIndex = directoryNameFromBase.IndexOf('_');
+                        creationDateInSecondsFromBase = long.Parse(directoryNameFromBase.Substring(0, sepIndex));
+
+                        //We found a more recent backup in the base Backup directory
+                        if (creationDateInSecondsFromBase > creationDateInSeconds)
+                            mostRecentBackupDirectory = mostRecentBackupDirectoryFromBase;
+                    }
+                }
+                else if (mostRecentBackupDirectoryFromBase != null)
+                {
+                    mostRecentBackupDirectory = mostRecentBackupDirectoryFromBase;
+                }
+                else if (BackupsCreatedThisSession && ContainsSaveFiles(Plugin.BackupOverwritePath))
                 {
                     //This is very unlikely to trigger. The contents of the backup folder probably was changed by the user
-                    if (BackupsCreatedThisSession && ContainsSaveFiles(Plugin.BackupOverwritePath))
-                        return Plugin.BackupOverwritePath;
+                    mostRecentBackupDirectory = Plugin.BackupOverwritePath;
                 }
                 return mostRecentBackupDirectory;
             }
