@@ -275,9 +275,9 @@ namespace SaveManager.Helpers
         /// <param name="targetPath">The directory path to convert</param>
         public static void ConvertToBackupFormat(string targetPath)
         {
-            double totalSeconds = (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
+            long totalSeconds = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
 
-            string backupName = ((long)totalSeconds) + '_' + DateTime.Now.ToString("yyyy-MM-dd_HH-mm");
+            string backupName = totalSeconds + '_' + DateTime.Now.ToString("yyyy-MM-dd_HH-mm");
             string backupTargetPath = Plugin.BackupPath;
 
             //Use the version directory when it exists, and  per version saving is enabled 
