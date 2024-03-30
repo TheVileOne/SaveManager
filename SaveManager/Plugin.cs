@@ -129,7 +129,7 @@ namespace SaveManager
 
                         //Hopefully this never triggers, but if it does, the save files on old patch builds cannot be salvaged due to
                         //a save bug caused by format compatibilities with newer versions. This logic is fine if the version is unchanged.
-                        if (result.CurrentVersion == result.LastVersion || !result.CurrentVersion.StartsWith("1.9.1"))
+                        if (result.CurrentVersion == result.LastVersion || (result.CurrentVersion.StartsWith("1.9") && !result.CurrentVersion.StartsWith("1.9.0")))
                         {
                             BackupOverwritePath = Path.Combine(result.LastVersionPath, BACKUP_OVERWRITE_FOLDER_NAME);
                             BackupSaves(result.LastVersionPath);
