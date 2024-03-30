@@ -34,7 +34,11 @@ namespace SaveManager
             get
             {
                 if (_overwritePath == null)
-                    return Path.Combine(BackupPath, GameVersionString, ConfigFilePath, BACKUP_OVERWRITE_FOLDER_NAME);
+                {
+                    string basePath = SaveManager.Config.PerVersionSaving ?
+                           Path.Combine(BackupPath, GameVersionString) : BackupPath;
+                    return Path.Combine(basePath, BACKUP_OVERWRITE_FOLDER_NAME);
+                }
                 return _overwritePath;
             }
         }
@@ -162,6 +166,8 @@ namespace SaveManager
                 }
                 else
                 {
+                    BackupOverwritePath = Path.Combine(BackupPath, BACKUP_OVERWRITE_FOLDER_NAME);
+
                     //To be safe, this file shouldn't be allowed to contain a stale version while per version saves is disabled
                     FileSystemUtils.SafeDeleteFile(lastVersionFilePath);
                 }
