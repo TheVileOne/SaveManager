@@ -114,6 +114,13 @@ namespace SaveManager.Interface
             {
                 Plugin.Logger.LogInfo("Backup found: " + PathUtils.GetRelativePath(mostRecentBackup, 3));
                 BackupUtils.RestoreFromBackup(mostRecentBackup);
+
+                RainWorld rainWorld = RWCustom.Custom.rainWorld;
+
+                int saveSlot = rainWorld.options.saveSlot;
+
+                rainWorld.progression.Destroy(saveSlot);
+                rainWorld.progression = new PlayerProgression(rainWorld, true, false);
                 Plugin.Logger.LogInfo("Process complete");
             }
             else
