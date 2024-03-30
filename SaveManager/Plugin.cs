@@ -265,7 +265,7 @@ namespace SaveManager
 
         private string getRelativeBackupPath(string backupDir)
         {
-            return Path.Combine(backupDir, GameVersionString);
+            return SaveManager.Config.PerVersionSaving ? Path.Combine(backupDir, GameVersionString) : backupDir;
         }
 
         /// <summary>
