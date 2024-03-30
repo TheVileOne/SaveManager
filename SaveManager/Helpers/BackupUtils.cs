@@ -89,12 +89,11 @@ namespace SaveManager.Helpers
 
                 if (targetingOverwritePath)
                 {
-                    //Move all files from the temp directory back into the actual overwrite directory
-                    foreach (string filePath in Directory.GetFiles(overwritePath))
-                        FileSystemUtils.SafeMoveFile(filePath, Path.Combine(Plugin.BackupOverwritePath, Path.GetFileName(filePath)));
+                    if (Path.GetDirectoryName(overwritePath) != "temp")
+                        throw new InvalidOperationException("This operation only accepts the temp directory");
 
-                    //Delete temp directory when process is finished
-                    FileSystemUtils.SafeDeleteDirectory(overwritePath);
+                    //Move all files from the temp directory back into the actual overwrite directory
+                    FileSystemUtils.SafeMoveDirectory(overwritePath, Plugin.BackupOverwritePath, SearchOption.TopDirectoryOnly);
                 }
 
                 return true;

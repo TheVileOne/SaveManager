@@ -116,25 +116,22 @@ namespace SaveManager.Helpers
                 return true;
             }
 
-            bool destEmpty = !File.Exists(destPath);
             bool exceptionLogged = false;
             while (attemptsAllowed > 0)
             {
                 try
                 {
                     //Make sure destination is clear
-                    if (!destEmpty)
-                    {
-                        SafeDeleteFile(destPath);
+                    SafeDeleteFile(destPath);
 
-                        if (File.Exists(destPath)) //File removal failed
-                        {
-                            attemptsAllowed--;
-                            continue;
-                        }
-                        destEmpty = true;
+                    if (File.Exists(destPath)) //File removal failed
+                    {
+                        Plugin.Logger.LogInfo($"Deleting file failed");
+                        attemptsAllowed--;
+                        continue;
                     }
 
+                    //Plugin.Logger.LogInfo($"Moving file at path {sourcePath} to path {destPath}");
                     File.Move(sourcePath, destPath);
                     return true;
                 }
