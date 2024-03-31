@@ -112,7 +112,7 @@ namespace SaveManager.Interface
 
             if (mostRecentBackup != null)
             {
-                Plugin.Logger.LogInfo("Backup found: " + PathUtils.GetRelativePath(mostRecentBackup, 3));
+                Plugin.Logger.LogInfo("Backup found: " + PathUtils.GetRelativePath(mostRecentBackup, 3, true));
                 BackupUtils.RestoreFromBackup(mostRecentBackup);
 
                 RainWorld rainWorld = RWCustom.Custom.rainWorld;
