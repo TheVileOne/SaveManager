@@ -43,6 +43,7 @@ namespace SaveManager
             }
         }
 
+        public const string BACKUP_MAIN_FOLDER_NAME = "backup";
         public const string BACKUP_OVERWRITE_FOLDER_NAME = "last-overwrite";
 
         /// <summary>
@@ -62,7 +63,7 @@ namespace SaveManager
         public void Awake()
         {
             Logger = base.Logger;
-            BackupPath = PathUtils.Combine(Application.persistentDataPath, "backup");
+            BackupPath = PathUtils.Combine(Application.persistentDataPath, BACKUP_MAIN_FOLDER_NAME);
             ConfigFilePath = PathUtils.Combine(Application.persistentDataPath, "ModConfigs", PLUGIN_GUID + ".txt");
 
             SaveManager.Config.Load();
@@ -244,7 +245,7 @@ namespace SaveManager
         {
             ILCursor cursor = new ILCursor(il);
 
-            if (cursor.TryGotoNext(MoveType.After, x => x.MatchLdstr("backup")))
+            if (cursor.TryGotoNext(MoveType.After, x => x.MatchLdstr(BACKUP_MAIN_FOLDER_NAME)))
                 cursor.EmitDelegate(getRelativeBackupPath); //Change path to version-specific directory
             else
                 Logger.LogError("Unable to apply Save Manager IL hook");
@@ -252,7 +253,7 @@ namespace SaveManager
 
         private string getRelativeBackupPath(string backupDir)
         {
-            return SaveManager.Config.PerVersionSaving ? PathUtils.Combine(backupDir, GameVersionString) : backupDir;
+            return BackupUtils.GetBackupTargetPath(true);
         }
 
         /// <summary>

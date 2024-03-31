@@ -183,6 +183,25 @@ namespace SaveManager.Helpers
             }
         }
 
+        /// <summary>
+        /// Gets the path that backup directories should be created and stored
+        /// </summary>
+        public static string GetBackupTargetPath(bool relativePathOnly)
+        {
+            string backupTargetPath = relativePathOnly ? Plugin.BACKUP_MAIN_FOLDER_NAME : Plugin.BackupPath;
+
+            //Use the version directory when it exists, and per version saving is enabled 
+            if (Config.PerVersionSaving)
+            {
+                string perVersionBackupTargetPath = PathUtils.Combine(backupTargetPath, Plugin.GameVersionString);
+
+                //When the logic is enabled on startup, directory is guaranteed to exist, not the case if set through Remix menu.
+                if (Plugin.VersionSavingEnabledOnStartUp || Directory.Exists(perVersionBackupTargetPath))
+                    backupTargetPath = perVersionBackupTargetPath;
+            }
+            return backupTargetPath;
+        }
+
         public static string GetRecentBackupPath()
         {
             //Check that we should look for the typical timestamped backup folders instead of the overwrite directory
@@ -275,22 +294,20 @@ namespace SaveManager.Helpers
         /// <param name="targetPath">The directory path to convert</param>
         public static void ConvertToBackupFormat(string targetPath)
         {
-            long totalSeconds = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
-
-            string backupName = totalSeconds + '_' + DateTime.Now.ToString("yyyy-MM-dd_HH-mm");
-            string backupTargetPath = Plugin.BackupPath;
-
-            //Use the version directory when it exists, and  per version saving is enabled 
-            if (Config.PerVersionSaving)
-            {
-                string perVersionBackupTargetPath = PathUtils.Combine(backupTargetPath, Plugin.GameVersionString);
-
-                //When the logic is enabled on startup, directory is guaranteed to exist, not the case if set through Remix menu.
-                if (Plugin.VersionSavingEnabledOnStartUp || Directory.Exists(perVersionBackupTargetPath))
-                    backupTargetPath = perVersionBackupTargetPath;
-            }
+            string backupName = GenerateBackupName();
+            string backupTargetPath = GetBackupTargetPath(false);
 
             FileSystemUtils.SafeMoveDirectory(targetPath, PathUtils.Combine(backupTargetPath, backupName), SearchOption.AllDirectories);
+        }
+
+        /// <summary>
+        /// Creates a unique backup directory name using DateTime formatting
+        /// </summary>
+        public static string GenerateBackupName()
+        {
+            long totalSeconds = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
+
+            return totalSeconds + '_' + DateTime.Now.ToString("yyyy-MM-dd_HH-mm");
         }
 
         private static void handleError(int errorCode)
