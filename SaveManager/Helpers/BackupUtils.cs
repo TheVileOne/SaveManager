@@ -136,7 +136,6 @@ namespace SaveManager.Helpers
                     if (PathUtils.GetDirectoryName(overwritePath) != "temp")
                         throw new InvalidOperationException("This operation only accepts the temp directory");
 
-
                     RemoveSavesNoBackup(Plugin.BackupOverwritePath); //Remove saves to avoid mixing backup files
 
                     //Move all files from the temp directory back into the actual overwrite directory
