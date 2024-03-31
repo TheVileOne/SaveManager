@@ -60,6 +60,37 @@ namespace SaveManager
         /// </summary>
         public static bool VersionSavingEnabledOnStartUp;
 
+        /// <summary>
+        /// Compares two version strings to determine if the version gap is reasonably save compatible
+        /// (Not just in the sense of forward compatibility conversion logic, but both forward and backward compatibility between versions)
+        /// </summary>
+        public static bool IsProblematicVersionChange(string currentVersion, string lastVersion)
+        {
+            if (currentVersion == lastVersion)
+                return false;
+
+            //Check that both versions are at least in the same family of versions. 1.9.07 isn't safely compatible with 1.9.1x
+            if (currentVersion.StartsWith("1.9"))
+            {
+                //Anything to do with version 1.9.0x is problematic with versions outside of its family
+                if (currentVersion.StartsWith("1.9.0") || lastVersion.StartsWith("1.9.0"))
+                    return !currentVersion.StartsWith(lastVersion.Substring(0, Math.Min(5, lastVersion.Length)));
+
+                //Assumes all other 1.9 versions are save compatible
+                return !lastVersion.StartsWith("1.9");
+            }
+
+            Logger.LogWarning("At least one version is unsupported by the mod");
+
+            //If an game version that isn't 1.9, check that save is in the same family of versions
+            return !lastVersion.StartsWith("1.9") && !currentVersion.StartsWith(lastVersion.Substring(0, 3));
+        }
+
+        public bool IsUnsupportedVersionChange(string currentVersion, string lastVersion)
+        {
+            return !currentVersion.StartsWith("1.9") || !lastVersion.StartsWith("1.9");
+        }
+
         public void Awake()
         {
             Logger = base.Logger;
@@ -107,7 +138,7 @@ namespace SaveManager
                         //Check for save files specific to the current game version
                         if (!BackupUtils.ContainsSaveFiles(result.CurrentVersionPath))
                         {
-                            if (!SaveManager.Config.InheritVersionSaves && result.CurrentVersion != result.LastVersion)
+                            if (!SaveManager.Config.InheritVersionSaves && IsProblematicVersionChange(result.CurrentVersion, result.LastVersion))
                             {
                                 //Remove all save data - Game will create new files
                                 BackupUtils.RemoveSaves();
