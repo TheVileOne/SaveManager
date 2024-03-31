@@ -241,6 +241,7 @@ namespace SaveManager
         private void RainWorld_OnModsInit(On.RainWorld.orig_OnModsInit orig, RainWorld self)
         {
             On.RainWorld.OnDestroy += RainWorld_OnDestroy;
+            On.OptionInterface.ShowConfigs += OptionInterface_ShowConfigs;
             orig(self);
 
             try
@@ -282,6 +283,15 @@ namespace SaveManager
                 BackupSaves(PathUtils.Combine(BackupPath, GameVersionString));
                 FileSystemUtils.SafeDeleteFile(BackupSuccessCheckPath); //Remove file created by the mod when Rain World starts
             }
+            orig(self);
+        }
+
+        private void OptionInterface_ShowConfigs(On.OptionInterface.orig_ShowConfigs orig, OptionInterface self)
+        {
+            //Reset status message to default when options are shown
+            if (self == OptionInterface)
+                OptionInterface.DisplayMessage("Nothing to show...");
+
             orig(self);
         }
 

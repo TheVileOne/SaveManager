@@ -1,5 +1,6 @@
 ﻿using Menu.Remix.MixedUI;
 using SaveManager.Helpers;
+using UnityEngine;
 using Vector2 = UnityEngine.Vector2;
 
 namespace SaveManager.Interface
@@ -28,6 +29,20 @@ namespace SaveManager.Interface
         /// </summary>
         private int backupRestoreCooldown = 0;
 
+        private OpLabel statusLabel;
+
+        private string _messageBuffer;
+        private string messageBuffer
+        {
+            get => _messageBuffer;
+            set
+            {
+                messageWaitPeriod = 0;
+                _messageBuffer = value;
+            }
+        }
+        private int messageWaitPeriod;
+
         public override void Initialize()
         {
             base.Initialize();
@@ -40,6 +55,15 @@ namespace SaveManager.Interface
             OpTab tab = Tabs[0];
 
             initializeOptions(tab);
+
+            OpLabel statusLabelHeader = new OpLabel(x_left_align, y_offset - 250f, Translate("STATUS:"))
+            {
+                color = Color.yellow
+            };
+
+            statusLabel = new OpLabel(x_left_align + statusLabelHeader.size.x, y_offset - 250f, string.Empty);
+
+            tab.AddItems(statusLabelHeader, statusLabel);
             HasInitialized = true;
         }
 
@@ -97,17 +121,29 @@ namespace SaveManager.Interface
         {
             if (!HasInitialized) return;
 
-            Config.cfgInheritVersionSaves.BoundUIconfig.greyedOut = !applyState; //This option only works when PerVersionSaving is enabled
+            var inheritToggle = Config.cfgInheritVersionSaves.BoundUIconfig;
+
+            if (inheritToggle.greyedOut == applyState)
+            {
+                statusLabel.text = "The inherit function only functions when Per Version Saving is enabled";
+                inheritToggle.greyedOut = !applyState; //This option only works when PerVersionSaving is enabled
+            }
         }
 
         private void BackupRestoreButton_OnClick(UIfocusable trigger)
         {
-            if (backupRestoreCooldown > 0) return;
+            if (backupRestoreCooldown > 0)
+            {
+                DisplayMessage("Operation could not be applied. Cooldown ACTIVE");
+                return;
+            }
 
             backupRestoreCooldown = RWCustom.Custom.rainWorld.processManager.currentMainLoop.framesPerSecond * 2;
 
-            Plugin.Logger.LogInfo("Restoring latest backup");
+            DisplayMessage("Restoring latest backup");
+            Plugin.Logger.LogInfo("Restoring latest backup...");
 
+            string processStatus;
             string mostRecentBackup = BackupUtils.GetRecentBackupPath();
 
             if (mostRecentBackup != null)
@@ -121,22 +157,37 @@ namespace SaveManager.Interface
 
                 rainWorld.progression.Destroy(saveSlot);
                 rainWorld.progression = new PlayerProgression(rainWorld, true, false);
-                Plugin.Logger.LogInfo("Process complete");
+                processStatus = "Save states have been reloaded";
             }
             else
-                Plugin.Logger.LogInfo("Nothing to restore");
+            {
+                processStatus = "Nothing to restore";
+            }
+
+            Plugin.Logger.LogInfo(processStatus);
+            DisplayMessageOnNextUpdate(processStatus, 1);
         }
 
         private void BackupCreateButton_OnClick(UIfocusable trigger)
         {
-            if (backupCreateCooldown > 0) return;
+            if (backupCreateCooldown > 0)
+            {
+                DisplayMessage("Operation could not be applied. Cooldown ACTIVE");
+                return;
+            }
 
             backupCreateCooldown = RWCustom.Custom.rainWorld.processManager.currentMainLoop.framesPerSecond * 2;
 
+            DisplayMessage("Creating new backup...");
             Plugin.Logger.LogInfo("Creating backups");
 
             BackupUtils.BackupsCreatedThisSession = true;
             RWCustom.Custom.rainWorld.progression.CreateCopyOfSaves();
+
+            string processStatus = "Process complete - Backup restore state has changed";
+
+            Plugin.Logger.LogInfo(processStatus);
+            DisplayMessageOnNextUpdate(processStatus, 1);
         }
 
         public override void Update()
@@ -148,6 +199,29 @@ namespace SaveManager.Interface
                 backupRestoreCooldown--;
 
             base.Update();
+
+            if (messageWaitPeriod > 0)
+                messageWaitPeriod--;
+            else if (messageBuffer != null)
+            {
+                DisplayMessage(messageBuffer);
+                messageBuffer = null;
+            }
+        }
+
+        /// <summary>
+        /// Displays a message to the user
+        /// </summary>
+        public void DisplayMessage(string message)
+        {
+            statusLabel.text = message;
+            messageWaitPeriod = 0;
+        }
+
+        public void DisplayMessageOnNextUpdate(string message, int waitPeriodInSeconds)
+        {
+            messageBuffer = message;
+            messageWaitPeriod = RWCustom.Custom.rainWorld.processManager.currentMainLoop.framesPerSecond * waitPeriodInSeconds;
         }
     }
 }
