@@ -206,7 +206,7 @@ namespace SaveManager.Interface
             Plugin.Logger.LogInfo("Creating backups");
 
             BackupUtils.BackupsCreatedThisSession = true;
-            RWCustom.Custom.rainWorld.progression.CreateCopyOfSaves();
+            RWCustom.Custom.rainWorld.progression.CreateCopyOfSaves(true);
 
             string processStatus = "Process complete - Backup restore state has changed";
 
