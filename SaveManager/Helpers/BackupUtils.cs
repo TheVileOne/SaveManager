@@ -59,6 +59,12 @@ namespace SaveManager.Helpers
         {
             try
             {
+                if (!ContainsSaveFiles(Application.persistentDataPath, true))
+                {
+                    Plugin.Logger.LogWarning("No save files to backup");
+                    return false;
+                }
+
                 Directory.CreateDirectory(backupPath); //Exception will trigger if directory doesn't exist
 
                 bool targetingOverwritePath = backupPath == Plugin.BackupOverwritePath;
