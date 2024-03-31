@@ -101,8 +101,13 @@ namespace SaveManager.Helpers
                 return;
             }
 
+            RemoveSavesNoBackup(Path.Combine(Application.persistentDataPath));
+        }
+
+        public static void RemoveSavesNoBackup(string path)
+        {
             foreach (string file in SaveFiles)
-                FileSystemUtils.SafeDeleteFile(Path.Combine(Application.persistentDataPath, file));
+                FileSystemUtils.SafeDeleteFile(PathUtils.Combine(path, file));
         }
 
         public static bool RestoreFromBackup(string backupPath)
@@ -124,6 +129,9 @@ namespace SaveManager.Helpers
                 {
                     if (PathUtils.GetDirectoryName(overwritePath) != "temp")
                         throw new InvalidOperationException("This operation only accepts the temp directory");
+
+
+                    RemoveSavesNoBackup(Plugin.BackupOverwritePath); //Remove saves to avoid mixing backup files
 
                     //Move all files from the temp directory back into the actual overwrite directory
                     FileSystemUtils.SafeMoveDirectory(overwritePath, Plugin.BackupOverwritePath, SearchOption.TopDirectoryOnly);
