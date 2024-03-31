@@ -59,6 +59,8 @@ namespace SaveManager.Helpers
         {
             try
             {
+                Directory.CreateDirectory(backupPath); //Exception will trigger if directory doesn't exist
+
                 bool targetingOverwritePath = backupPath == Plugin.BackupOverwritePath;
                 string overwritePath = createOverwriteDirectory(targetingOverwritePath);
 
@@ -100,7 +102,7 @@ namespace SaveManager.Helpers
             }
 
             foreach (string file in SaveFiles)
-                FileSystemUtils.SafeDeleteFile(file);
+                FileSystemUtils.SafeDeleteFile(Path.Combine(Application.persistentDataPath, file));
         }
 
         public static bool RestoreFromBackup(string backupPath)
@@ -274,6 +276,8 @@ namespace SaveManager.Helpers
 
         public static string GetRecentBackupPath(string path)
         {
+            if (!Directory.Exists(path)) return null;
+
             //Get backups from the version specific directory
             string[] backupDirs = Directory.GetDirectories(path);
 
@@ -333,7 +337,7 @@ namespace SaveManager.Helpers
         {
             long totalSeconds = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
 
-            return totalSeconds + '_' + DateTime.Now.ToString("yyyy-MM-dd_HH-mm");
+            return totalSeconds + "_" + DateTime.Now.ToString("yyyy-MM-dd_HH-mm");
         }
 
         private static void handleError(int errorCode)

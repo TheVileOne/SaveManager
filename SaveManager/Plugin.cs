@@ -140,8 +140,10 @@ namespace SaveManager
                         {
                             if (!SaveManager.Config.InheritVersionSaves && IsProblematicVersionChange(result.CurrentVersion, result.LastVersion))
                             {
-                                //Remove all save data - Game will create new files
-                                BackupUtils.RemoveSaves();
+                                VersionSavingEnabledOnStartUp = false; //This flag only applies when save backup logic runs
+
+                                BackupOverwritePath = PathUtils.Combine(BackupPath, BACKUP_OVERWRITE_FOLDER_NAME);
+                                BackupUtils.RemoveSaves(); //Remove all save data - Game will create new files
                             }
                             else
                             {
@@ -155,9 +157,12 @@ namespace SaveManager
                             RestoreFromBackup(result.CurrentVersionPath);
                         }
 
-                        //When there is a version mismatch, presume that strays are from the past version, and not the current one
-                        ManageStrayBackups(result.CurrentVersion != result.LastVersion ?
-                            result.LastVersionPath : result.CurrentVersionPath);
+                        if (VersionSavingEnabledOnStartUp)
+                        {
+                            //When there is a version mismatch, presume that strays are from the past version, and not the current one
+                            ManageStrayBackups(result.CurrentVersion != result.LastVersion ?
+                                result.LastVersionPath : result.CurrentVersionPath);
+                        }
                     }
                     else
                     {
