@@ -1,6 +1,5 @@
 ﻿using Menu.Remix.MixedUI;
 using SaveManager.Helpers;
-using System.IO;
 using Vector2 = UnityEngine.Vector2;
 
 namespace SaveManager.Interface
@@ -47,6 +46,7 @@ namespace SaveManager.Interface
 
             OpCheckBox inheritVersionSavesToggle = new OpCheckBox(Config.cfgInheritVersionSaves, new Vector2(x_left_align + 20f, y_offset - 120f))
             {
+                greyedOut = !Config.PerVersionSaving,
                 description = Config.GetDescription(Config.cfgInheritVersionSaves)
             };
             OpLabel inheritVersionSavesLabel = new OpLabel(x_left_align + 60f, y_offset - 120f, Translate(Config.GetOptionLabel(Config.cfgInheritVersionSaves)));
@@ -61,6 +61,7 @@ namespace SaveManager.Interface
                 description = Translate("Creates a copy of save game data")
             };
 
+            enableVersionSavesToggle.OnValueChanged += updateEnableStates;
             backupRestoreButton.OnClick += BackupRestoreButton_OnClick;
             backupCreateButton.OnClick += BackupCreateButton_OnClick;
 
@@ -75,6 +76,18 @@ namespace SaveManager.Interface
                 backupRestoreButton,
                 backupCreateButton,
             });
+        }
+
+        private void updateEnableStates(UIconfig config, string value, string oldValue)
+        {
+            updateEnableStates(bool.Parse(value));
+        }
+
+        private void updateEnableStates(bool applyState)
+        {
+            if (!HasInitialized) return;
+
+            Config.cfgInheritVersionSaves.BoundUIconfig.greyedOut = !applyState; //This option only works when PerVersionSaving is enabled
         }
 
         private void BackupRestoreButton_OnClick(UIfocusable trigger)

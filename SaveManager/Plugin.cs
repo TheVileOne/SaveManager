@@ -107,8 +107,16 @@ namespace SaveManager
                         //Check for save files specific to the current game version
                         if (!BackupUtils.ContainsSaveFiles(result.CurrentVersionPath))
                         {
-                            //Creates copy of current save files in version-specific folder
-                            BackupSaves(result.CurrentVersionPath);
+                            if (!SaveManager.Config.InheritVersionSaves && result.CurrentVersion != result.LastVersion)
+                            {
+                                //Remove all save data - Game will create new files
+                                BackupUtils.RemoveSaves();
+                            }
+                            else
+                            {
+                                //Creates copy of current save files in version-specific folder
+                                BackupSaves(result.CurrentVersionPath);
+                            }
                         }
                         else
                         {

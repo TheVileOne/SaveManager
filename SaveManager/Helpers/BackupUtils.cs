@@ -44,6 +44,17 @@ namespace SaveManager.Helpers
             return false;
         }
 
+        /// <summary>
+        /// Creates a backup using a standard backup name format 
+        /// </summary>
+        public static bool BackupSaves()
+        {
+            string backupName = GenerateBackupName();
+            string backupTargetPath = Path.Combine(GetBackupTargetPath(false), backupName);
+
+            return BackupSaves(backupTargetPath);
+        }
+
         public static bool BackupSaves(string backupPath)
         {
             try
@@ -75,6 +86,21 @@ namespace SaveManager.Helpers
                 Plugin.Logger.LogError(ex);
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Creates a backup of active save files removing them from the persistent data folder
+        /// </summary>
+        public static void RemoveSaves()
+        {
+            if (!BackupSaves())
+            {
+                Plugin.Logger.LogWarning("Save backup failed - Aborting process");
+                return;
+            }
+
+            foreach (string file in SaveFiles)
+                FileSystemUtils.SafeDeleteFile(file);
         }
 
         public static bool RestoreFromBackup(string backupPath)

@@ -44,6 +44,22 @@ namespace SaveManager
             }
         }
 
+        /// <summary>
+        /// Enables the mod to load from the currently active save data, and use it as the stored save data for that game version
+        /// when no existing save data already exists for that game version. In other words, if this is false using a game version
+        /// without stored backup data will default to a completely new set of save data. Existing active save slot data will be
+        /// stored in a standard backup format.
+        /// </summary>
+        public static bool InheritVersionSaves
+        {
+            get
+            {
+                if (SafeToLoad)
+                    return cfgInheritVersionSaves.Value;
+                return GetValue(nameof(cfgInheritVersionSaves), true);
+            }
+        }
+
         public static void Load()
         {
             ConfigDataRaw = ConfigReader.ReadFile(Plugin.ConfigFilePath);
