@@ -27,6 +27,12 @@ namespace SaveManager.Helpers
         public static bool BackupsCreatedThisSession;
 
         /// <summary>
+        /// A flag that indicates that a Restore From Backup request has been handled before any user-created backups have been created
+        /// since Rain World has been running
+        /// </summary>
+        public static bool RestoreHandledWithoutBackup;
+
+        /// <summary>
         /// Checks directory path for save files
         /// </summary>
         /// <param name="path">The path to check</param>

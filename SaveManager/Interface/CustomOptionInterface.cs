@@ -1,5 +1,6 @@
 ﻿using Menu.Remix.MixedUI;
 using SaveManager.Helpers;
+using System.IO;
 using UnityEngine;
 using Vector2 = UnityEngine.Vector2;
 
@@ -149,7 +150,30 @@ namespace SaveManager.Interface
             if (mostRecentBackup != null)
             {
                 Plugin.Logger.LogInfo("Backup found: " + PathUtils.GetRelativePath(mostRecentBackup, 3, true));
+
+                //User-created backups interrupt the restore cycle - Creating a backup here ensures that original data wont be overwritten
+                if (BackupUtils.BackupsCreatedThisSession && BackupUtils.RestoreHandledWithoutBackup)
+                {
+                    Plugin.Logger.LogInfo("Creating safety backup");
+                    BackupUtils.RestoreHandledWithoutBackup = false; //If this process fails, not much to do but accept it
+
+                    BackupUtils.ConvertToBackupFormat(Plugin.BackupOverwritePath); //Backup overwrite directory is only set once per session
+                    Directory.CreateDirectory(Plugin.BackupOverwritePath);
+                }
+
                 BackupUtils.RestoreFromBackup(mostRecentBackup);
+
+                //Each time a restore is handled without a user-created backup, save data will alternate between
+                //the original save data, and some other set of save files. This code tracks save data that may not be
+                //properly backed up
+                /*
+                 * First restore - Versioning Enabled
+                 * Version data swaps with original data in a cycle
+                 * First restore - Versioning Disabled
+                 * Original data swaps with backup data in a cycle
+                 */
+                if (!BackupUtils.BackupsCreatedThisSession)
+                    BackupUtils.RestoreHandledWithoutBackup = !BackupUtils.RestoreHandledWithoutBackup;
 
                 RainWorld rainWorld = RWCustom.Custom.rainWorld;
 
