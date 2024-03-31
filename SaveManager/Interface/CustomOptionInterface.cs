@@ -18,6 +18,16 @@ namespace SaveManager.Interface
         /// </summary>
         private const float x_left_align = 20f;
 
+        /// <summary>
+        /// A timer that prevents the backup create option from being selected too often 
+        /// </summary>
+        private int backupCreateCooldown = 0;
+
+        /// <summary>
+        /// A timer that prevents the backup restore option from being selected too often
+        /// </summary>
+        private int backupRestoreCooldown = 0;
+
         public override void Initialize()
         {
             base.Initialize();
@@ -92,6 +102,10 @@ namespace SaveManager.Interface
 
         private void BackupRestoreButton_OnClick(UIfocusable trigger)
         {
+            if (backupRestoreCooldown > 0) return;
+
+            backupRestoreCooldown = RWCustom.Custom.rainWorld.processManager.currentMainLoop.framesPerSecond * 2;
+
             Plugin.Logger.LogInfo("Restoring latest backup");
 
             string mostRecentBackup = BackupUtils.GetRecentBackupPath();
@@ -115,10 +129,25 @@ namespace SaveManager.Interface
 
         private void BackupCreateButton_OnClick(UIfocusable trigger)
         {
+            if (backupCreateCooldown > 0) return;
+
+            backupCreateCooldown = RWCustom.Custom.rainWorld.processManager.currentMainLoop.framesPerSecond * 2;
+
             Plugin.Logger.LogInfo("Creating backups");
 
             BackupUtils.BackupsCreatedThisSession = true;
             RWCustom.Custom.rainWorld.progression.CreateCopyOfSaves();
+        }
+
+        public override void Update()
+        {
+            if (backupCreateCooldown > 0)
+                backupCreateCooldown--;
+
+            if (backupRestoreCooldown > 0)
+                backupRestoreCooldown--;
+
+            base.Update();
         }
     }
 }
